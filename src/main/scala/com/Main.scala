@@ -1,4 +1,4 @@
-package com.dindane.mireille
+package main.scala.com
 
 object Main {
 
