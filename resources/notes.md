@@ -99,3 +99,41 @@ A list of type descriptors that describe the parameter types and the return type
 * `int m(Object o)` -> `(Ljava/lang/Object;)I`
 * `int[] m(int i, String s)` -> `(ILjava/lang/String;)[I`
 * `Object m(int[] i)` -> `([I)Ljava/lang/Object;`
+
+# Methods
+## The JVM's execution model
+* Executed inside threads
+* Each threads has its own execution stack, which is made of frames
+* Each frame respresents a method invocation
+* When a method is called
+	* New frame is pushed on the current thread's execution stack
+	* When the methods returns (or throws an exception)
+		* The frame is popped from the execution stack
+		* The execution continues in the calling method (whose stack is now on top of the stack)
+* Each frame contains two parts
+	* The local variables part: Contains variables that can be accessed by their index, in random order
+	* The operand stack: a stack of values that are used as operands by bytecode instructions
+	
+## Bytecode instructions
+### Made of
+* An opcode that identifies the instruction
+	* Unsigned byte value: the bytecode name
+	* Identified by a mnemonic symbol
+	* *Example:* the opcode value `0` stands for `NOP`, which is the instruction that does nothing.
+* A fixed number of arguments
+	* Arguments are static values given after the opcode
+	* Must not be confused by instruction operands: these are know only at run time, which arguments values are statically known and stored in the compiled code. 
+	
+### Can be divided in two categories
+* A small set of instructions designed to transfer values form the local variables to the operand stack, and vice versa
+* The other instruction act only on the operand stack; for instance, they pop values from the stack, compute a result based on these values, and push it back on the stack
+
+### Instructions
+* `xLOAD` instructions
+    * Read a local variable and push its value on the operand stack.  
+    * Take as arguments the index of the local variable that musy be read.
+    * `ILOAD` for `boolean`, `byte`, `char`, `short` and `int`.
+    * `LLOAD` and `DLOAD` use two slots.
+    * `ALOAD`: used to load any non primitive value, i.e. object and array references
+* `xSTORE`: pop a values from the operand stack and store it in a local variable.
+* Instructions are typed
