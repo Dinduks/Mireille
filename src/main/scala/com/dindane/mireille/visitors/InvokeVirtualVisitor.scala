@@ -15,6 +15,14 @@ class InvokeVirtualVisitor(className: String) extends ClassVisitor(Opcodes.ASM4)
 
   override def visitMethod(access: Int, name: String, description: String, signature: String, exceptions: Array[String]): MethodVisitor = {
     new MethodVisitor(Opcodes.ASM4, super.visitMethod(access, name, description, signature, exceptions)) {
+      private var lineNumber: Option[Int] = None
+
+      override def visitLineNumber(line: Int, startLabel: Label) {
+        lineNumber = Some(line)
+
+        super.visitLineNumber(line, startLabel)
+      }
+
       override def visitMethodInsn(opcode: Int, owner: String, name: String, description: String) = {
         if (opcode == Opcodes.INVOKEVIRTUAL) {
           invokeVirtualCalls += InvokeVirtualCall(className,
@@ -23,8 +31,10 @@ class InvokeVirtualVisitor(className: String) extends ClassVisitor(Opcodes.ASM4)
             Type.getArgumentTypes(description),
             Type.getReturnType(description),
             fileName.getOrElse(""),
-            0)
+            lineNumber.getOrElse(0))
         }
+
+        super.visitMethodInsn(opcode, owner, name, description)
       }
     }
   }

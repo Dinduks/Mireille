@@ -28,21 +28,25 @@ class ReaderSpec extends Specification {
       invokeVirtualCalls(0).arguments(0).getInternalName must_== "java/lang/String"
       invokeVirtualCalls(0).returnType.getInternalName must_== "java/lang/String"
       invokeVirtualCalls(0).owner must_== "foo/A"
+      invokeVirtualCalls(0).lineNumber must_== 4
 
       invokeVirtualCalls(1).methodName must_== "foo"
       invokeVirtualCalls(1).arguments(0) must_== Type.INT_TYPE
       invokeVirtualCalls(1).arguments(1) must_== Type.FLOAT_TYPE
       invokeVirtualCalls(1).returnType must_== Type.BOOLEAN_TYPE
       invokeVirtualCalls(1).owner must_== "foo/B"
+      invokeVirtualCalls(1).lineNumber must_== 9
 
       invokeVirtualCalls(2).methodName must_== "bar"
       invokeVirtualCalls(2).arguments(0).getInternalName must_== "java/lang/String"
       invokeVirtualCalls(2).returnType.getInternalName must_== "java/lang/String"
       invokeVirtualCalls(2).owner must_== "foo/A"
+      invokeVirtualCalls(2).lineNumber must_== 10
 
       invokeVirtualCalls(3).methodName must_== "toString"
       invokeVirtualCalls(3).returnType.getInternalName must_== "java/lang/String"
       invokeVirtualCalls(3).owner must_== "java/lang/Object"
+      invokeVirtualCalls(3).lineNumber must_== 14
     }
   }
 }
