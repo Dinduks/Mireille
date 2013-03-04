@@ -30,8 +30,8 @@ class InvokeVirtualVisitor(className: String) extends ClassVisitor(Opcodes.ASM4)
             owner,
             Type.getArgumentTypes(description),
             Type.getReturnType(description),
-            fileName.getOrElse(""),
-            lineNumber.getOrElse(0))
+            fileName,
+            lineNumber)
         }
 
         super.visitMethodInsn(opcode, owner, name, description)

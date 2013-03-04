@@ -27,14 +27,17 @@ object Main {
       println("No INVOKEVIRTUAL calls were found.")
       println("Exiting.")
     } else {
-      println("=== INVOKEVIRTUAL calls in '%s', from '%s':".format(
-        fileName, invokeVirtualCalls(0).file
+      println("=== INVOKEVIRTUAL calls in %s, from %s:".format(
+        fileName, invokeVirtualCalls(0).file.getOrElse("an unknown file")
       ))
 
       invokeVirtualCalls.map { invokeVirtualCall =>
         println()
         println("Method name: %s".format(invokeVirtualCall.methodName))
         println("Called on: %s".format(invokeVirtualCall.owner))
+        if (None != invokeVirtualCall.lineNumber) {
+          println("In line: %s".format(invokeVirtualCall.lineNumber.get))
+        }
         println("Takes these arguments: %s".format(invokeVirtualCall.arguments.mkString(", ")))
         println("Returns: %s".format(invokeVirtualCall.returnType))
       }

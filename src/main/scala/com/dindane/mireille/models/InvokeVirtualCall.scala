@@ -8,6 +8,6 @@ case class InvokeVirtualCall(
   owner: String,
   arguments: Seq[Type],
   returnType: Type,
-  file: String,
-  lineNumber: Int
+  file: Option[String],
+  lineNumber: Option[Int]
 )
