@@ -1,6 +1,6 @@
 package main.scala
 
-import com.dindane.mireille.models.InvokeVirtualCall
+import com.dindane.mireille.models.InvokeCall
 import com.dindane.mireille.Reader
 import java.nio.file.Paths
 
@@ -22,7 +22,7 @@ object Main {
     }
   }
 
-  def printVirtualCalls(fileName: String, invokeVirtualCalls: Seq[InvokeVirtualCall]) {
+  def printVirtualCalls(fileName: String, invokeVirtualCalls: Seq[InvokeCall]) {
     if (0 == invokeVirtualCalls.size) {
       println("No INVOKEVIRTUAL calls were found.")
       println("Exiting.")
