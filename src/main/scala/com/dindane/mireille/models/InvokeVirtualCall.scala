@@ -2,7 +2,7 @@ package main.scala.com.dindane.mireille.models
 
 import org.objectweb.asm.Type
 
-class InvokeVirtualCall(
+case class InvokeVirtualCall(
   className: String,
   methodName: String,
   owner: String,
@@ -10,12 +10,4 @@ class InvokeVirtualCall(
   returnType: Type,
   file: Option[String],
   lineNumber: Option[Int]
-) extends InvokeCall(
-  className,
-  methodName,
-  owner,
-  arguments,
-  returnType,
-  file,
-  lineNumber
 )
