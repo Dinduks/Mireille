@@ -5,6 +5,7 @@ import java.io.InputStream
 import java.nio.file.{StandardOpenOption, Files, Path}
 import org.objectweb.asm.ClassReader
 import visitors.{InvokeDynamicVisitor, InvokeVirtualVisitor}
+import java.util.ArrayList
 
 object Reader {
 
@@ -25,7 +26,7 @@ object Reader {
     val invokeDynamicVisitor = new InvokeDynamicVisitor(classReader.getClassName)
     classReader.accept(invokeDynamicVisitor, 0)
 
-    invokeDynamicVisitor.invokeDynamicCalls
+    scala.collection.JavaConversions.asScalaBuffer(invokeDynamicVisitor.invokeDynamicCalls)
   }
 
   def getInvokeDynamicCalls(path: Path): Seq[InvokeDynamicCall] = {

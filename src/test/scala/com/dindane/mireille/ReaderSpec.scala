@@ -13,7 +13,22 @@ class ReaderSpec extends Specification {
         .resolve("src/test/scala/com/dindane/mireille/resources/core.class")
       val invokeDynamicCalls = Reader.getInvokeDynamicCalls(path)
 
-      invokeDynamicCalls must be size(1)
+      invokeDynamicCalls must be size(40)
+    }
+
+    "return invokeDynamicCalls objects with the correct information" in {
+      val path: Path = Paths.get(System.getProperty("user.dir"))
+        .resolve("src/test/scala/com/dindane/mireille/resources/core.class")
+      val invokeDynamicCalls = Reader.getInvokeDynamicCalls(path)
+
+      invokeDynamicCalls(0).className must_== "ruby/core/core"
+      invokeDynamicCalls(0).file.get must_== "core"
+
+      invokeDynamicCalls(36).methodName must_== "+"
+      invokeDynamicCalls(36).arguments.size must_== 1
+      invokeDynamicCalls(36).arguments(0).toString must_== "Ljava/lang/Object;"
+      invokeDynamicCalls(36).returnType.toString must_== "V"
+      invokeDynamicCalls(36).lineNumber.get must_== 83
     }
   }
 

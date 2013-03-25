@@ -4,7 +4,7 @@ import collection._
 import org.objectweb.asm._
 import main.scala.com.dindane.mireille.models.InvokeDynamicCall
 
-class InvokeDynamicVisitor(className: String) extends ClassVisitor(Opcodes.ASM4) {
+class InvokeDynamicVisitorScala(className: String) extends ClassVisitor(Opcodes.ASM4) {
 
   val invokeDynamicCalls: mutable.MutableList[InvokeDynamicCall] = mutable.MutableList.empty
   private var fileName: Option[String] = None
