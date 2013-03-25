@@ -1,10 +1,10 @@
 package main.scala.com.dindane.mireille
 
-import models.InvokeVirtualCall
+import models.{InvokeDynamicCall, InvokeVirtualCall}
 import java.io.InputStream
 import java.nio.file.{StandardOpenOption, Files, Path}
 import org.objectweb.asm.ClassReader
-import visitors.InvokeVirtualVisitor
+import visitors.{InvokeDynamicVisitor, InvokeVirtualVisitor}
 
 object Reader {
 
@@ -18,6 +18,18 @@ object Reader {
 
   def getInvokeVirtualCalls(path: Path): Seq[InvokeVirtualCall] = {
     getInvokeVirtualCalls(Files.newInputStream(path, StandardOpenOption.READ))
+  }
+
+  def getInvokeDynamicCalls(is: InputStream): Seq[InvokeDynamicCall] = {
+    val classReader = new ClassReader(is)
+    val invokeDynamicVisitor = new InvokeDynamicVisitor(classReader.getClassName)
+    classReader.accept(invokeDynamicVisitor, 0)
+
+    invokeDynamicVisitor.invokeDynamicCalls
+  }
+
+  def getInvokeDynamicCalls(path: Path): Seq[InvokeDynamicCall] = {
+    getInvokeDynamicCalls(Files.newInputStream(path, StandardOpenOption.READ))
   }
 
 }

@@ -7,6 +7,16 @@ import org.objectweb.asm.Type
 
 
 class ReaderSpec extends Specification {
+  "Reader.getInvokeDynamicInfo" should {
+    "return a Seq whose size is the number of INVOKEDYNAMIC calls" in {
+      val path: Path = Paths.get(System.getProperty("user.dir"))
+        .resolve("src/test/scala/com/dindane/mireille/resources/core.class")
+      val invokeDynamicCalls = Reader.getInvokeDynamicCalls(path)
+
+      invokeDynamicCalls must be size(1)
+    }
+  }
+
   "Reader.getInvokeVirtualInfo" should {
     "return a Seq whose size is the number of INVOKEVIRTUAL calls" in {
       val path: Path = Paths.get(System.getProperty("user.dir"))
