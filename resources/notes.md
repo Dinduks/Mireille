@@ -1,4 +1,4 @@
-# Introduction
+# Introduction to ASM
 ## What is ASM used for?
 ### Program analysis
 * Syntaxic parsing
@@ -137,3 +137,20 @@ A list of type descriptors that describe the parameter types and the return type
     * `ALOAD`: used to load any non primitive value, i.e. object and array references
 * `xSTORE`: pop a values from the operand stack and store it in a local variable.
 * Instructions are typed
+
+# The `invokedynamic` instruction
+## Example
+Code: 
+
+```
+def add(a, b)
+       a + b;
+end
+```
+
+We want to choose the right `add` method to call on runtime; for example, an addition on integers, on a concatenation on strings.
+
+> The `invokedynamic` instruction enables the runtime system to customize the linkage between a *call site* (`add`) and a method implementation. 
+
+* The call site is linked to a method via a *bootstrap method*. 
+* The *bootstrap method* is specified by the dynamically-typed language's compiler, and called by the JVM to link the site. 
