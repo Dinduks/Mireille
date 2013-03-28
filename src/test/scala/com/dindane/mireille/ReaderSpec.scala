@@ -29,6 +29,9 @@ class ReaderSpec extends Specification {
       invokeDynamicCalls(36).arguments(0).toString must_== "Ljava/lang/Object;"
       invokeDynamicCalls(36).returnType.toString must_== "V"
       invokeDynamicCalls(36).lineNumber.get must_== 83
+
+      invokeDynamicCalls(36).bootstrapMethod.getOwner must_== "emerald/rt/RT"
+      invokeDynamicCalls(36).bootstrapMethod.getName  must_== "bsm_declare_predefined_method"
     }
   }
 

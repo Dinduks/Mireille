@@ -27,7 +27,8 @@ class InvokeDynamicVisitor(className: String) extends ClassVisitor(Opcodes.ASM4)
           Type.getArgumentTypes(description),
           Type.getReturnType(description),
           fileName,
-          lineNumber)
+          lineNumber,
+          bsm)
       }
     }
   }

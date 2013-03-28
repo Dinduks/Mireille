@@ -1,6 +1,6 @@
 package main.scala.com.dindane.mireille.models
 
-import org.objectweb.asm.Type
+import org.objectweb.asm._
 
 case class InvokeDynamicCall(
   className: String,
@@ -8,5 +8,6 @@ case class InvokeDynamicCall(
   arguments: Seq[Type],
   returnType: Type,
   file: Option[String],
-  lineNumber: Option[Int]
+  lineNumber: Option[Int],
+  bootstrapMethod: Handle
 )
