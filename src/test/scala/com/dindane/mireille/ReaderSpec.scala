@@ -11,7 +11,7 @@ class ReaderSpec extends Specification {
     "return a Seq whose size is the number of INVOKEDYNAMIC calls" in {
       val path: Path = Paths.get(System.getProperty("user.dir"))
         .resolve("src/test/scala/com/dindane/mireille/resources/core.class")
-      val invokeDynamicCalls = Reader.getInvokeDynamicCalls(path)
+      val invokeDynamicCalls = Reader.getInvokeDynamicCalls(Files.newInputStream(path, StandardOpenOption.READ))
 
       invokeDynamicCalls must be size(40)
     }
@@ -19,7 +19,7 @@ class ReaderSpec extends Specification {
     "return invokeDynamicCalls objects with the correct information" in {
       val path: Path = Paths.get(System.getProperty("user.dir"))
         .resolve("src/test/scala/com/dindane/mireille/resources/core.class")
-      val invokeDynamicCalls = Reader.getInvokeDynamicCalls(path)
+      val invokeDynamicCalls = Reader.getInvokeDynamicCalls(Files.newInputStream(path, StandardOpenOption.READ))
 
       invokeDynamicCalls(0).className must_== "ruby/core/core"
       invokeDynamicCalls(0).file.get must_== "core"
@@ -39,7 +39,7 @@ class ReaderSpec extends Specification {
     "return a Seq whose size is the number of INVOKEVIRTUAL calls" in {
       val path: Path = Paths.get(System.getProperty("user.dir"))
         .resolve("src/test/scala/com/dindane/mireille/resources/A.class")
-      val invokeVirtualCalls = Reader.getInvokeVirtualCalls(path)
+      val invokeVirtualCalls = Reader.getInvokeVirtualCalls(Files.newInputStream(path, StandardOpenOption.READ))
 
       invokeVirtualCalls must be size(4)
     }
@@ -47,7 +47,7 @@ class ReaderSpec extends Specification {
     "return InvokeVirtualCall objects with the correct information" in {
       val path: Path = Paths.get(System.getProperty("user.dir"))
         .resolve("src/test/scala/com/dindane/mireille/resources/A.class")
-      val invokeVirtualCalls = Reader.getInvokeVirtualCalls(path)
+      val invokeVirtualCalls = Reader.getInvokeVirtualCalls(Files.newInputStream(path, StandardOpenOption.READ))
 
       invokeVirtualCalls(0).className must_== "foo/A"
       invokeVirtualCalls(0).file.get must_== "main.java"

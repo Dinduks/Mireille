@@ -2,7 +2,7 @@ package main.scala
 
 import com.dindane.mireille.models.InvokeVirtualCall
 import com.dindane.mireille.Reader
-import java.nio.file.Paths
+import java.nio.file.{Files, StandardOpenOption, Paths}
 
 object Main {
 
@@ -12,7 +12,7 @@ object Main {
         val path = Paths.get(args(0))
         val fileName = path.getFileName.toString
 
-        printVirtualCalls(fileName, Reader.getInvokeVirtualCalls(path))
+        printVirtualCalls(fileName, Reader.getInvokeVirtualCalls(Files.newInputStream(path, StandardOpenOption.READ)))
       } catch {
         case e: Exception => {
           println("The specified class file was not found.")

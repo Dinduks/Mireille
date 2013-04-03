@@ -16,20 +16,12 @@ object Reader {
     invokeVirtualVisitor.invokeVirtualCalls
   }
 
-  def getInvokeVirtualCalls(path: Path): Seq[InvokeVirtualCall] = {
-    getInvokeVirtualCalls(Files.newInputStream(path, StandardOpenOption.READ))
-  }
-
   def getInvokeDynamicCalls(is: InputStream): Seq[InvokeDynamicCall] = {
     val classReader = new ClassReader(is)
     val invokeDynamicVisitor = new InvokeDynamicVisitor(classReader.getClassName)
     classReader.accept(invokeDynamicVisitor, 0)
 
     invokeDynamicVisitor.invokeDynamicCalls
-  }
-
-  def getInvokeDynamicCalls(path: Path): Seq[InvokeDynamicCall] = {
-    getInvokeDynamicCalls(Files.newInputStream(path, StandardOpenOption.READ))
   }
 
 }
