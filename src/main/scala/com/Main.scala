@@ -1,12 +1,26 @@
 package main.scala
 
 import com.dindane.mireille.models.InvokeVirtualCall
-import com.dindane.mireille.Reader
-import java.nio.file.Paths
+import com.dindane.mireille.{Transformer, Reader}
+import java.nio.file.{Path, Files, StandardOpenOption, Paths}
+import org.objectweb.asm.ClassWriter
 
 object Main {
 
   def main (args: Array[String]) {
+    {
+    val path: Path = Paths.get(System.getProperty("user.dir"))
+      .resolve("src/test/scala/com/dindane/mireille/resources/A.class")
+    val path2: Path = Paths.get(System.getProperty("user.dir"))
+      .resolve("src/test/scala/com/dindane/mireille/resources/A2.class")
+    val is = Files.newInputStream(path, StandardOpenOption.READ)
+
+    val cw: ClassWriter = Transformer.invokeVirtualToInvokeDynamic(is)
+    val bytes: Array[Byte] = cw.toByteArray
+
+    Files.write(path2, bytes, StandardOpenOption.CREATE)
+    }
+
     if (1 == args.size) {
       try {
         val path = Paths.get(args(0))
