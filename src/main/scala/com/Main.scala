@@ -10,9 +10,9 @@ object Main {
   def main (args: Array[String]) {
     {
     val path: Path = Paths.get(System.getProperty("user.dir"))
-      .resolve("src/test/scala/com/dindane/mireille/resources/A.class")
+      .resolve("src/test/scala/com/dindane/mireille/resources/TestOriginal.class")
     val path2: Path = Paths.get(System.getProperty("user.dir"))
-      .resolve("src/test/scala/com/dindane/mireille/resources/A2.class")
+      .resolve("src/test/scala/com/dindane/mireille/resources/Test.class")
     val is = Files.newInputStream(path, StandardOpenOption.READ)
 
     val cw: ClassWriter = Transformer.invokeVirtualToInvokeDynamic(is)
