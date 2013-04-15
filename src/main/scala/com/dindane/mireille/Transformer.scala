@@ -1,15 +1,13 @@
 package main.scala.com.dindane.mireille
 
-import java.io.{PrintWriter, InputStream}
-import org.objectweb.asm.{Opcodes, ClassWriter, ClassReader}
+import java.io.PrintWriter
+import org.objectweb.asm.{ClassWriter, ClassReader}
 import visitors.InvokeDynamicTransformerVisitor
 import org.objectweb.asm.util.CheckClassAdapter
 
 object Transformer {
 
-  // TODO: Change this methods signature to a more logical one
-  def invokeVirtualToInvokeDynamic(is: InputStream): ClassWriter = {
-    val classReader = new ClassReader(is)
+  def invokeVirtualToInvokeDynamic(classReader: ClassReader): ClassWriter = {
     val classWriter = new ClassWriter(0)
     val classVisitor = new InvokeDynamicTransformerVisitor(classReader.getClassName, classWriter)
     classReader.accept(classVisitor, 0)

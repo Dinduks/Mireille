@@ -3,7 +3,7 @@ package main.scala
 import com.dindane.mireille.models.InvokeVirtualCall
 import com.dindane.mireille.{Transformer, Reader}
 import java.nio.file.{Path, Files, StandardOpenOption, Paths}
-import org.objectweb.asm.ClassWriter
+import org.objectweb.asm.{ClassReader, ClassWriter}
 
 object Main {
 
@@ -15,7 +15,7 @@ object Main {
       .resolve("src/test/scala/com/dindane/mireille/resources/IndyTestOriginal.class")
     val is = Files.newInputStream(path, StandardOpenOption.READ)
 
-    val cw: ClassWriter = Transformer.invokeVirtualToInvokeDynamic(is)
+    val cw: ClassWriter = Transformer.invokeVirtualToInvokeDynamic(new ClassReader(is))
     val bytes: Array[Byte] = cw.toByteArray
 
     Files.write(path2, bytes)
