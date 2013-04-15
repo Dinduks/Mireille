@@ -50,7 +50,7 @@ class ReaderSpec extends Specification {
       val invokeVirtualCalls = Reader.getInvokeVirtualCalls(path)
 
       invokeVirtualCalls(0).className must_== "foo/A"
-      invokeVirtualCalls(0).file.get must_== "main.java"
+      invokeVirtualCalls(0).file.get must_== "AandB.java"
 
       invokeVirtualCalls(0).methodName must_== "bar"
       invokeVirtualCalls(0).arguments(0).getInternalName must_== "java/lang/String"
