@@ -34,8 +34,10 @@ class InvokeDynamicTransformerAdapter(methodVisitor: MethodVisitor)
         "bootstrap",
         methodType.toMethodDescriptorString)
 
-      // TODO: Detect if owner is an array
-      super.visitInvokeDynamicInsn(name, "(L" + owner + ';' + description.substring(1), bootstrapMethod)
+      val prefix = if (owner(0) == '[') { "(" + owner } else { "(L" + owner + ';' }
+      val newDescription = prefix + description.substring(1)
+
+      super.visitInvokeDynamicInsn(name, newDescription, bootstrapMethod)
     } else {
       super.visitMethodInsn(opcode, owner, name, description)
     }
