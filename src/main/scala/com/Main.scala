@@ -18,7 +18,7 @@ object Main {
     val cw: ClassWriter = Transformer.invokeVirtualToInvokeDynamic(is)
     val bytes: Array[Byte] = cw.toByteArray
 
-    Files.write(path2, bytes, StandardOpenOption.CREATE)
+    Files.write(path2, bytes)
     }
 
     if (1 == args.size) {
