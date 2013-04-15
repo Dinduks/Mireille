@@ -3,12 +3,15 @@ package main.scala.com.dindane.mireille.visitors
 import org.objectweb.asm._
 import java.lang.invoke.{CallSite, MethodType}
 import java.lang.invoke.MethodHandles.Lookup
+import main.scala.com.dindane.mireille.Util
 
 class InvokeDynamicTransformerVisitor(className: String, classVisitor: ClassVisitor)
   extends ClassVisitor(Opcodes.ASM4, classVisitor) {
 
   override def visit(version: Int, access: Int, name: String, signature: String, superName: String, interfaces: Array[String]) {
-    super.visit(version, access, "Indy" + name, signature, superName, interfaces)
+    val newName: String = Util.getPackageNameFromFQCN(name) + "/" + "Indy" + Util.getClassNameFromFQCN(name)
+
+    super.visit(version, access, newName, signature, superName, interfaces)
   }
 
   override def visitMethod(access: Int, name: String, desc: String, signature: String, exceptions: Array[String]) = {
