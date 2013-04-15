@@ -1,10 +1,15 @@
-class TestOriginal {
+package foo;
 
+class TestOriginal {
     public static void main(String[] args) {
         Greeter greeter = new Greeter();
-        System.out.println(greeter.inEnglish("Samy"));
-    }
 
+        int[] ints = new int[42];
+        int[] foo = ints.clone();
+
+        greeter.inEnglish("Samy");
+        greeter.toString();
+    }
 }
 
 class Greeter {
