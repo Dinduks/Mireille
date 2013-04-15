@@ -12,7 +12,7 @@ object Main {
     val path: Path = Paths.get(System.getProperty("user.dir"))
       .resolve("src/test/scala/com/dindane/mireille/resources/TestOriginal.class")
     val path2: Path = Paths.get(System.getProperty("user.dir"))
-      .resolve("src/test/scala/com/dindane/mireille/resources/Test.class")
+      .resolve("src/test/scala/com/dindane/mireille/resources/IndyTestOriginal.class")
     val is = Files.newInputStream(path, StandardOpenOption.READ)
 
     val cw: ClassWriter = Transformer.invokeVirtualToInvokeDynamic(is)
