@@ -22,7 +22,7 @@ class InvokeDynamicTransformerAdapter(methodVisitor: MethodVisitor)
   extends MethodVisitor(Opcodes.ASM4, methodVisitor) {
 
   override def visitMethodInsn(opcode: Int, owner: String, name: String, description: String) {
-    if (opcode == Opcodes.INVOKEVIRTUAL) {
+    if (opcode == Opcodes.INVOKEVIRTUAL || opcode == Opcodes.INVOKEINTERFACE) {
       val methodType: MethodType = MethodType.methodType(classOf[CallSite], classOf[Lookup], classOf[String],
         classOf[MethodType])
 
