@@ -21,4 +21,16 @@ class UtilSpec extends Specification {
     }
   }
 
+  "Util.changeFileName" should {
+    "return the changed filename" in {
+      val path1: Path = Paths.get("/foo/bar/baz")
+      val path2: Path = Paths.get("/foo")
+      val path3: Path = Paths.get("foo")
+
+      Util.changeFileName(path1, "bla").toString must_== "/foo/bar/bla"
+      Util.changeFileName(path2, "bar").toString must_== "/bar"
+      Util.changeFileName(path3, "bar").toString must_== "bar"
+    }
+  }
+
 }
