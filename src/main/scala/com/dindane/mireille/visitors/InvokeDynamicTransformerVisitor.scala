@@ -24,7 +24,7 @@ class InvokeDynamicTransformerAdapter(methodVisitor: MethodVisitor)
         classOf[MethodType])
 
       val bootstrapMethod = new Handle(Opcodes.H_INVOKESTATIC,
-        "main/scala/com/dindane/mireille/RT",
+        "main/scala/com/dindane/mireille/RunTime",
         "bootstrap",
         methodType.toMethodDescriptorString)
 
