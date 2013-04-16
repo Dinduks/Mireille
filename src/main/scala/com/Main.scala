@@ -1,37 +1,37 @@
 package main.scala
 
 import com.dindane.mireille.models.InvokeVirtualCall
-import com.dindane.mireille.{Transformer, Reader}
+import main.scala.com.dindane.mireille.{Util, Transformer, Reader}
 import java.nio.file.{Path, Files, StandardOpenOption, Paths}
 import org.objectweb.asm.{ClassReader, ClassWriter}
 
 object Main {
 
   def main (args: Array[String]) {
-    {
-    val path: Path = Paths.get(System.getProperty("user.dir"))
-      .resolve("src/test/scala/com/dindane/mireille/resources/TestOriginal.class")
-    val path2: Path = Paths.get(System.getProperty("user.dir"))
-      .resolve("src/test/scala/com/dindane/mireille/resources/IndyTestOriginal.class")
-    val is = Files.newInputStream(path, StandardOpenOption.READ)
-
-    val cw: ClassWriter = Transformer.invokeVirtualToInvokeDynamic(new ClassReader(is))
-    val bytes: Array[Byte] = cw.toByteArray
-
-    Files.write(path2, bytes)
-    }
-
     if (1 == args.size) {
-      try {
-        val path = Paths.get(args(0))
-        val fileName = path.getFileName.toString
+      if (args(1) == "printinvi") {
+        try {
+          val path = Paths.get(args(0))
+          val fileName = path.getFileName.toString
 
-        printVirtualCalls(fileName, Reader.getInvokeVirtualCalls(Files.newInputStream(path, StandardOpenOption.READ)))
-      } catch {
-        case e: Exception => {
-          println("The specified class file was not found.")
-          println("Exiting.")
+          printVirtualCalls(fileName, Reader.getInvokeVirtualCalls(Files.newInputStream(path, StandardOpenOption.READ)))
+        } catch {
+          case e: Exception => {
+            println("The specified class file was not found.")
+            println("Exiting.")
+          }
         }
+      } else if (args(1) == "indynamize") {
+        val sourcePath = Paths.get(System.getProperty("user.dir")).resolve(args(1))
+        val targetPath = sourcePath.getParent.resolve("indy").resolve(sourcePath.getFileName)
+
+        try { Files.createDirectory(targetPath.getParent) } catch { case _: Throwable => () }
+
+        val is = Files.newInputStream(sourcePath, StandardOpenOption.READ)
+        val cw: ClassWriter = Transformer.invokeVirtualToInvokeDynamic(new ClassReader(is))
+        val bytes: Array[Byte] = cw.toByteArray
+
+        Files.write(targetPath, bytes)
       }
     }
   }

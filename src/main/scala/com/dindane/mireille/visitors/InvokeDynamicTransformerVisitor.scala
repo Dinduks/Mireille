@@ -8,12 +8,6 @@ import main.scala.com.dindane.mireille.Util
 class InvokeDynamicTransformerVisitor(className: String, classVisitor: ClassVisitor)
   extends ClassVisitor(Opcodes.ASM4, classVisitor) {
 
-  override def visit(version: Int, access: Int, name: String, signature: String, superName: String, interfaces: Array[String]) {
-    val newName: String = Util.getPackageNameFromFQCN(name) + "/" + "Indy" + Util.getClassNameFromFQCN(name)
-
-    super.visit(version, access, newName, signature, superName, interfaces)
-  }
-
   override def visitMethod(access: Int, name: String, desc: String, signature: String, exceptions: Array[String]) = {
     val methodVisitor = classVisitor.visitMethod(access, name, desc, signature, exceptions)
     new InvokeDynamicTransformerAdapter(methodVisitor)
