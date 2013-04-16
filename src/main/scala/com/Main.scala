@@ -4,24 +4,26 @@ import com.dindane.mireille.models.InvokeVirtualCall
 import main.scala.com.dindane.mireille.{Util, Transformer, Reader}
 import java.nio.file.{Path, Files, StandardOpenOption, Paths}
 import org.objectweb.asm.{ClassReader, ClassWriter}
+import java.io.FileNotFoundException
 
 object Main {
 
   def main (args: Array[String]) {
-    if (1 == args.size) {
-      if (args(1) == "printinvi") {
+    if (2 == args.size) {
+      if (args(0) == "printinvi") {
         try {
-          val path = Paths.get(args(0))
+          val path = Paths.get(args(1))
           val fileName = path.getFileName.toString
 
           printVirtualCalls(fileName, Reader.getInvokeVirtualCalls(Files.newInputStream(path, StandardOpenOption.READ)))
         } catch {
-          case e: Exception => {
+          case e: FileNotFoundException => {
             println("The specified class file was not found.")
             println("Exiting.")
           }
+          case e: Exception => println(e)
         }
-      } else if (args(1) == "indynamize") {
+      } else if (args(0) == "indynamize") {
         val sourcePath = Paths.get(System.getProperty("user.dir")).resolve(args(1))
         val targetPath = sourcePath.getParent.resolve("indy").resolve(sourcePath.getFileName)
 
