@@ -2,7 +2,7 @@ package main.scala.com.dindane.mireille
 
 import java.lang.invoke._
 
-object RunTime {
+object RunTimeOld {
 
   val FALLBACK = MethodHandles.lookup().findVirtual(classOf[InliningCacheCallSite],
     "fallback",
