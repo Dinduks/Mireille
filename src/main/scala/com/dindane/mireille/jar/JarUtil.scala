@@ -7,6 +7,8 @@ import org.apache.commons.io.FileUtils
 
 object JarUtil {
 
+  def getFiles(jarPath: String): Seq[String] = (new JarFile(jarPath)).entries.toSeq.map(file => file.getName)
+
   def extract(jarPath: String, destinationDir: String) = {
     val jar: JarFile = new JarFile(jarPath)
 
