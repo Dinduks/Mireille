@@ -1,8 +1,9 @@
 package main.scala.com.dindane.mireille.jar
 
+import collection.JavaConversions.enumerationAsScalaIterator
 import java.util.jar.JarFile
 import java.io.{FileOutputStream, File}
-import collection.JavaConversions.enumerationAsScalaIterator
+import org.apache.commons.io.FileUtils
 
 object JarUtil {
 
@@ -11,15 +12,19 @@ object JarUtil {
 
     jar.entries.toList.map { jarEntry =>
       val file: File = new File(destinationDir + java.io.File.separator + jarEntry.getName)
+      FileUtils.forceMkdir(new File(file.getParent))
 
-      if (jarEntry.isDirectory) file.mkdir
+      if (jarEntry.isDirectory) {
+        file.mkdir
+      }
+      else {
+        val is = jar.getInputStream(jarEntry)
+        val fos = new FileOutputStream(file)
 
-      val is = jar.getInputStream(jarEntry)
-      val fos = new FileOutputStream(file)
+        while (is.available > 0) fos.write(is.read)
 
-      while (is.available > 0) fos.write(is.read)
-
-      is.close
+        is.close
+      }
     }
   }
 
