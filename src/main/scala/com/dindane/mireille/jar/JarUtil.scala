@@ -9,7 +9,7 @@ object JarUtil {
   def extract(jarPath: String, destinationDir: String) = {
     val jar: JarFile = new JarFile(jarPath)
 
-    jar.entries.map { jarEntry =>
+    jar.entries.toList.map { jarEntry =>
       val file: File = new File(destinationDir + java.io.File.separator + jarEntry.getName)
 
       if (jarEntry.isDirectory) file.mkdir
