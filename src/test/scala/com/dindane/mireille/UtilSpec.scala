@@ -33,4 +33,16 @@ class UtilSpec extends Specification {
     }
   }
 
+  "Util.getStringWithoutPrefix" should {
+    "return the path without the prefix" in {
+      Util.getStringWithoutPrefix("/a/b", "/a/b/c") must_== "/c"
+      Util.getStringWithoutPrefix("a", "a/b/c") must_== "/b/c"
+      Util.getStringWithoutPrefix("/tmp/foo", "/tmp/foo/bar.zip") must_== "/bar.zip"
+    }
+
+    "throw an exception if the two strings don't share a prefix" in {
+      Util.getStringWithoutPrefix("/a/b/c", "/b/c") must throwA[Exception]
+    }
+  }
+
 }

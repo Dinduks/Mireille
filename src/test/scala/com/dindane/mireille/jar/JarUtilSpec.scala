@@ -6,6 +6,7 @@ import main.scala.com.dindane.mireille.jar.JarUtil
 import org.apache.commons.io.FileUtils
 import org.specs2.mutable._
 import scala.util.Random
+import main.scala.com.dindane.mireille.Util
 
 class JarUtilSpec extends Specification {
 
@@ -52,9 +53,8 @@ class JarUtilSpec extends Specification {
 
       JarUtil.extract("src/test/scala/com/dindane/mireille/resources/asm-tree-4.1.jar", destinationDirPath)
 
-      def getPathWithoutPrefix(prefix: String, fullPath: String): String = fullPath.substring(prefix.size + 0)
       val extractedFiles: Iterable[String] = FileUtils.listFiles(destinationDir, null, true).map { path: File =>
-        getPathWithoutPrefix(destinationDirPath, path.getPath)
+        Util.getStringWithoutPrefix(destinationDirPath, path.getPath)
       }
 
       destinationDir.delete
