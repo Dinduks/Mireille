@@ -1,3 +1,4 @@
+
 package test.scala.com.dindane.mireille.jar
 
 import collection.JavaConversions.collectionAsScalaIterable
@@ -7,6 +8,7 @@ import org.apache.commons.io.FileUtils
 import org.specs2.mutable._
 import scala.util.Random
 import main.scala.com.dindane.mireille.Util
+import java.nio.file.Paths
 
 class JarUtilSpec extends Specification {
 
@@ -39,6 +41,9 @@ class JarUtilSpec extends Specification {
     "org/objectweb/asm/tree/TypeInsnNode.class",
     "org/objectweb/asm/tree/VarInsnNode.class")
 
+  def newTempDir: String =
+    "%s%smireille-test-%s".format(System.getProperty("java.io.tmpdir"), java.io.File.separator, Random.nextInt)
+
   def recursiveListFiles(f: File): Array[File] = {
     f.mkdir
     val these = f.listFiles
@@ -47,8 +52,7 @@ class JarUtilSpec extends Specification {
 
   "JarUtil.extract" should {
     "Extract all the JAR's file in the specified directory" in {
-      val destinationDirPath: String =
-        "%s%smireille-test-%s".format(System.getProperty("java.io.tmpdir"), java.io.File.separator, Random.nextInt)
+      val destinationDirPath = newTempDir
       val destinationDir = new File(destinationDirPath)
 
       JarUtil.extract("src/test/scala/com/dindane/mireille/resources/asm-tree-4.1.jar", destinationDirPath)
@@ -67,6 +71,27 @@ class JarUtilSpec extends Specification {
   "JarUtil.getFiles" should {
     "Return a Seq of all the jar files" in {
       val jarFiles: Seq[String] = JarUtil.getFiles("src/test/scala/com/dindane/mireille/resources/asm-tree-4.1.jar")
+
+      jarFiles.map { pathInJar => filesList must contain(pathInJar) }
+      jarFiles.size must_== filesList.size
+    }
+  }
+
+  "JarUtil.createFromDirFiles" should {
+    "Create a jar file from all the files of a directory" in {
+      val srcPath = Paths.get("").toAbsolutePath +
+        java.io.File.separator +
+        "src/test/scala/com/dindane/mireille/resources/asm-tree-4.1"
+      val destinationJar = newTempDir + java.io.File.separator + "asm-tree-4.1.jar"
+      val destinationJarFile = new File(destinationJar)
+
+      destinationJarFile.getParentFile.mkdir
+
+      JarUtil.createFromDirFiles(srcPath, destinationJar)
+
+      val jarFiles: Seq[String] = JarUtil.getFiles(destinationJar)
+
+      destinationJarFile.getParentFile.mkdir
 
       jarFiles.map { pathInJar => filesList must contain(pathInJar) }
       jarFiles.size must_== filesList.size

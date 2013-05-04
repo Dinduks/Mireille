@@ -1,9 +1,12 @@
 package main.scala.com.dindane.mireille.jar
 
+import collection.JavaConversions.collectionAsScalaIterable
 import collection.JavaConversions.enumerationAsScalaIterator
 import java.util.jar.JarFile
-import java.io.{FileOutputStream, File}
+import java.io._
 import org.apache.commons.io.FileUtils
+import java.util.zip.{ZipEntry, ZipOutputStream}
+import main.scala.com.dindane.mireille.Util
 
 object JarUtil {
 
@@ -28,6 +31,33 @@ object JarUtil {
         is.close
       }
     }
+  }
+
+  def createFromDirFiles(srcPath: String, targetJarPath: String) {
+    val buf: Array[Byte] = new Array[Byte](1024 * 16)
+    val files = FileUtils.listFiles(new File(srcPath), null, true)
+
+    val out: ZipOutputStream  = new ZipOutputStream(new FileOutputStream(targetJarPath))
+
+    files.map { file: File =>
+      val in: FileInputStream  = new FileInputStream(file.getAbsolutePath)
+
+      val pathWithoutPrefix: String = Util.getStringWithoutPrefix(srcPath, file.getAbsolutePath)
+      val filePathInJar = if (pathWithoutPrefix(0).toString == java.io.File.separator) pathWithoutPrefix.substring(1)
+        else pathWithoutPrefix
+
+      out.putNextEntry(new ZipEntry(filePathInJar))
+
+      var len: Int = 0
+      while ({len = in.read(buf); len > 0}) {
+        out.write(buf, 0, len)
+      }
+
+      out.closeEntry()
+      in.close()
+    }
+
+    out.close()
   }
 
 }
