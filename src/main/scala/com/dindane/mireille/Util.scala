@@ -14,4 +14,9 @@ object Util {
       Paths.get(newFileName)
   }
 
+  def getStringWithoutPrefix(prefix: String, string: String): String = {
+    if (prefix(0) != string(0)) throw new Exception("The strings don't have a common prefix.")
+    string.substring(prefix.size + 0)
+  }
+
 }

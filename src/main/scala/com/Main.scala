@@ -5,6 +5,7 @@ import main.scala.com.dindane.mireille.{Util, Transformer, Reader}
 import java.nio.file.{Path, Files, StandardOpenOption, Paths}
 import org.objectweb.asm.{ClassReader, ClassWriter}
 import java.io.FileNotFoundException
+import main.scala.com.dindane.mireille.jar.JarUtil
 
 object Main {
 
