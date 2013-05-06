@@ -1,7 +1,7 @@
 package main.scala
 
 import com.dindane.mireille.models.InvokeVirtualCall
-import main.scala.com.dindane.mireille.{Util, Transformer, Reader}
+import main.scala.com.dindane.mireille.{Transformer, Reader}
 import java.nio.file.{Path, Files, StandardOpenOption, Paths}
 import org.objectweb.asm.{ClassReader, ClassWriter}
 import java.io.{File, FileNotFoundException}
@@ -87,17 +87,18 @@ object Main {
 
     JarUtil.extract(sourcePath, extractionDir)
 
-    jarFiles map { jarFile =>
+    jarFiles foreach { jarFile =>
       if (jarFile == "META-INF/MANIFEST.MF") {
         try { Files.createDirectories(targetPath.resolve(Paths.get("META-INF"))) }
         Files.copy(extractionDir.resolve(Paths.get(jarFile)), targetPath.resolve(Paths.get(jarFile)))
       } else {
-        val is = Files.newInputStream(Paths.get(extractionDir + java.io.File.separator + jarFile), StandardOpenOption.READ)
+        val is = Files.newInputStream(extractionDir.resolve(jarFile), StandardOpenOption.READ)
         val classReader: ClassReader = new ClassReader(is)
         val cw: ClassWriter = Transformer.invokeVirtualToInvokeDynamic(classReader)
         val bytes: Array[Byte] = cw.toByteArray
 
-        Files.write(targetPath, bytes)
+        Files.createDirectories(targetPath.resolve(jarFile).getParent)
+        Files.write(targetPath.resolve(jarFile), bytes)
 
         is.close
       }
