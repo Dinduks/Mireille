@@ -89,12 +89,10 @@ object Main {
       JarUtil.extract(sourcePath, extractionDir)
 
       jarFiles foreach { jarFile =>
-        println(".class$".r findFirstIn jarFile)
         if ((".class$".r findFirstIn jarFile) == None) {
           try { Files.createDirectories(targetPath.resolve(Paths.get(jarFile).getParent)) }
           Files.copy(extractionDir.resolve(Paths.get(jarFile)), targetPath.resolve(Paths.get(jarFile)))
         } else {
-          println(extractionDir.resolve(jarFile))
           val is = Files.newInputStream(extractionDir.resolve(jarFile), StandardOpenOption.READ)
           val classReader: ClassReader = new ClassReader(is)
           val cw: ClassWriter = Transformer.invokeVirtualToInvokeDynamic(classReader)
