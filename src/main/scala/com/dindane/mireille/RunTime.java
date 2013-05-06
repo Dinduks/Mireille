@@ -4,11 +4,38 @@ import java.lang.invoke.*;
 import java.util.HashMap;
 
 public class RunTime {
-    public static MethodHandle FALLBACK;
-    public static int callsCounter = 0;
-    public static HashMap<String, Integer> methodCalls = new HashMap<>();
+    public MethodHandle FALLBACK;
+    public int callsCounter = 0;
+    public HashMap<String, Integer> methodCalls = new HashMap<>();
+
+    private static RunTime instance = new RunTime();
+
+    private RunTime() {
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                System.out.println("\n\nExecution summary:");
+                System.out.println("==================");
+
+                System.out.println("\nMethod invocations");
+                System.out.println(String.format("\nTotal: %d", callsCounter));
+
+//                for (Pair<String, Integer> methodCall : RunTime.methodCalls.values()) {
+//                    System.out.println(String.format("%s() \t\t called %d times", RunTime.methodCalls.get(i), RunTime.methodCalls.get(i)));
+//                }
+            }
+        });
+    }
 
     public static CallSite bootstrap(MethodHandles.Lookup lookUp, String methodName, MethodType methodType) {
+        return instance.bsm(lookUp, methodName, methodType);
+    }
+
+    public static RunTime getInstance() {
+        return instance;
+    }
+
+    private CallSite bsm(MethodHandles.Lookup lookUp, String methodName, MethodType methodType) {
         try {
             FALLBACK = MethodHandles.lookup().findVirtual(InliningCacheCallSite.class,
                     "fallback",
@@ -19,20 +46,6 @@ public class RunTime {
             e.printStackTrace();
         }
 
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                System.out.println("\n\nExecution summary:");
-                System.out.println("==================");
-
-                System.out.println("\nMethod invocations");
-                System.out.println(String.format("\nTotal: %d", RunTime.callsCounter));
-
-//                for (Pair<String, Integer> methodCall : RunTime.methodCalls.values()) {
-//                    System.out.println(String.format("%s() \t\t called %d times", RunTime.methodCalls.get(i), RunTime.methodCalls.get(i)));
-//                }
-            }
-        });
 
         return new InliningCacheCallSite(lookUp, methodName, methodType, FALLBACK);
     }
@@ -59,12 +72,14 @@ class InliningCacheCallSite extends MutableCallSite {
     }
 
     public Object fallback(Object... args) throws Throwable {
-        RunTime.callsCounter += 1;
+        RunTime runTimeInstance = RunTime.getInstance();
 
-        if (RunTime.methodCalls.get(methodName) == null) {
-            RunTime.methodCalls.put(methodName, 1);
+        runTimeInstance.callsCounter += 1;
+
+        if (runTimeInstance.methodCalls.get(methodName) == null) {
+            runTimeInstance.methodCalls.put(methodName, 1);
         } else {
-            RunTime.methodCalls.put(methodName, RunTime.methodCalls.get(methodName) + 1);
+            runTimeInstance.methodCalls.put(methodName, runTimeInstance.methodCalls.get(methodName) + 1);
         }
 
         try {
