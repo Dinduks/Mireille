@@ -4,7 +4,9 @@ import com.dindane.mireille.models.InvokeVirtualCall
 import main.scala.com.dindane.mireille.{Util, Transformer, Reader}
 import java.nio.file.{Path, Files, StandardOpenOption, Paths}
 import org.objectweb.asm.{ClassReader, ClassWriter}
-import java.io.FileNotFoundException
+import java.io.{File, FileNotFoundException}
+import org.apache.commons.io.filefilter._
+import main.scala.com.dindane.mireille.jar.JarUtil
 
 object Main {
 
@@ -24,17 +26,53 @@ object Main {
           case e: Exception => println(e)
         }
       } else if (args(0) == "indynamize") {
-        val sourcePath = Paths.get(System.getProperty("user.dir")).resolve(args(1))
-        val targetPath = sourcePath.getParent.resolve("indy").resolve(sourcePath.getFileName)
+        val sourcePath: Path = Paths.get(System.getProperty("user.dir")).resolve(args(1))
+        val sourceFile: File = new java.io.File(sourcePath.toString)
 
-        try { Files.createDirectory(targetPath.getParent) } catch { case _: Throwable => () }
+        if (FileFilterUtils.suffixFileFilter("class").accept(sourceFile)) {
+          val targetPath: Path = sourcePath.getParent.resolve("indy").resolve(sourcePath.getFileName)
 
-        val is = Files.newInputStream(sourcePath, StandardOpenOption.READ)
-        val cw: ClassWriter = Transformer.invokeVirtualToInvokeDynamic(new ClassReader(is))
-        val bytes: Array[Byte] = cw.toByteArray
+          try { Files.createDirectory(targetPath.getParent) } catch { case _: Throwable => () }
 
-        Files.write(targetPath, bytes)
+          val is = Files.newInputStream(sourcePath, StandardOpenOption.READ)
+          val cw: ClassWriter = Transformer.invokeVirtualToInvokeDynamic(new ClassReader(is))
+          val bytes: Array[Byte] = cw.toByteArray
+
+          Files.write(targetPath, bytes)
+
+          is.close
+        } else if (FileFilterUtils.suffixFileFilter("jar").accept(sourceFile)) {
+          val jarFiles: Seq[String] = JarUtil.getFiles(sourcePath.toString)
+          val extractionDir: Path = Paths.get(
+            "%s%smireille-test-%s".format(System.getProperty("java.io.tmpdir"), java.io.File.separator, scala.util.Random.nextInt))
+          val targetPath: Path = extractionDir.resolve("indy")
+
+          JarUtil.extract(sourcePath.toString, extractionDir.toString)
+
+          jarFiles map { jarFile =>
+            if (jarFile == "META-INF/MANIFEST.MF") {
+              try { Files.createDirectories(targetPath.resolve(Paths.get("META-INF"))) }
+              Files.copy(extractionDir.resolve(Paths.get(jarFile)), targetPath.resolve(Paths.get(jarFile)))
+            } else {
+              val is = Files.newInputStream(Paths.get(extractionDir + java.io.File.separator + jarFile), StandardOpenOption.READ)
+              val classReader: ClassReader = new ClassReader(is)
+              val cw: ClassWriter = Transformer.invokeVirtualToInvokeDynamic(classReader)
+              val bytes: Array[Byte] = cw.toByteArray
+
+              Files.write(targetPath, bytes)
+
+              is.close
+            }
+          }
+
+          def jarNameToPatchedName(jarName: String) = "%s-patched.jar".format(jarName.substring(0, jarName.size - 4))
+          JarUtil.createFromDirFiles(targetPath.toString, jarNameToPatchedName(sourceFile.getName))
+        } else {
+          println("Please specify a JAR or class file")
+        }
       }
+    } else {
+      println("Command unknown or lacking parameters")
     }
   }
 
