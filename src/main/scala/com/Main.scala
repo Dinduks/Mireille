@@ -79,12 +79,12 @@ object Main {
   }
 
   def indynamizeAJar(sourcePath: Path, sourceFile: File) = {
-    val jarFiles: Seq[String] = JarUtil.getFiles(sourcePath.toString)
+    val jarFiles: Seq[String] = JarUtil.getFiles(sourcePath)
     val extractionDir: Path = Paths.get(
       "%s%smireille-test-%s".format(System.getProperty("java.io.tmpdir"), java.io.File.separator, scala.util.Random.nextInt))
     val targetPath: Path = extractionDir.resolve("indy")
 
-    JarUtil.extract(sourcePath.toString, extractionDir.toString)
+    JarUtil.extract(sourcePath, extractionDir)
 
     jarFiles map { jarFile =>
       if (jarFile == "META-INF/MANIFEST.MF") {
@@ -103,7 +103,7 @@ object Main {
     }
 
     def jarNameToPatchedName(jarName: String) = "%s-patched.jar".format(jarName.substring(0, jarName.size - 4))
-    JarUtil.createFromDirFiles(targetPath.toString, jarNameToPatchedName(sourceFile.getName))
+    JarUtil.createFromDirFiles(targetPath, Paths.get(jarNameToPatchedName(sourceFile.getName)))
   }
 
 }
