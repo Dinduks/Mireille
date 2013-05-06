@@ -2,7 +2,7 @@ package main.scala
 
 import com.dindane.mireille.models.InvokeVirtualCall
 import main.scala.com.dindane.mireille.{Transformer, Reader}
-import java.nio.file.{Path, Files, StandardOpenOption, Paths}
+import java.nio.file._
 import org.objectweb.asm.{ClassReader, ClassWriter}
 import java.io.{File, FileNotFoundException}
 import org.apache.commons.io.filefilter._
@@ -70,13 +70,17 @@ object Main {
 
     try { Files.createDirectory(targetPath.getParent) } catch { case _: Throwable => () }
 
-    val is = Files.newInputStream(sourcePath, StandardOpenOption.READ)
-    val cw: ClassWriter = Transformer.invokeVirtualToInvokeDynamic(new ClassReader(is))
-    val bytes: Array[Byte] = cw.toByteArray
+    try {
+      val is = Files.newInputStream(sourcePath, StandardOpenOption.READ)
+      val cw: ClassWriter = Transformer.invokeVirtualToInvokeDynamic(new ClassReader(is))
+      val bytes: Array[Byte] = cw.toByteArray
 
-    Files.write(targetPath, bytes)
+      Files.write(targetPath, bytes)
 
-    is.close
+      is.close
+    } catch {
+      case e: NoSuchFileException => println("The file \"%s\" was not found.".format(sourcePath.toString))
+    }
   }
 
   def indynamizeAJar(sourcePath: Path, sourceFile: File) = {
