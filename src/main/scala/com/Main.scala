@@ -80,34 +80,40 @@ object Main {
   }
 
   def indynamizeAJar(sourcePath: Path, sourceFile: File) = {
-    val jarFiles: Seq[String] = JarUtil.getFiles(sourcePath)
-    val extractionDir: Path = Paths.get(
-      "%s%smireille-test-%s".format(System.getProperty("java.io.tmpdir"), java.io.File.separator, scala.util.Random.nextInt))
-    val targetPath: Path = extractionDir.resolve("indy")
+    try {
+      val jarFiles: Seq[String] = JarUtil.getFiles(sourcePath)
+      val extractionDir: Path = Paths.get(
+        "%s%smireille-test-%s".format(System.getProperty("java.io.tmpdir"), java.io.File.separator, scala.util.Random.nextInt))
+      val targetPath: Path = extractionDir.resolve("indy")
 
-    JarUtil.extract(sourcePath, extractionDir)
+      JarUtil.extract(sourcePath, extractionDir)
 
-    jarFiles foreach { jarFile =>
-      if (jarFile == "META-INF/MANIFEST.MF") {
-        try { Files.createDirectories(targetPath.resolve(Paths.get("META-INF"))) }
-        Files.copy(extractionDir.resolve(Paths.get(jarFile)), targetPath.resolve(Paths.get(jarFile)))
-      } else {
-        val is = Files.newInputStream(extractionDir.resolve(jarFile), StandardOpenOption.READ)
-        val classReader: ClassReader = new ClassReader(is)
-        val cw: ClassWriter = Transformer.invokeVirtualToInvokeDynamic(classReader)
-        val bytes: Array[Byte] = cw.toByteArray
+      jarFiles foreach { jarFile =>
+        println(".class$".r findFirstIn jarFile)
+        if ((".class$".r findFirstIn jarFile) == None) {
+          try { Files.createDirectories(targetPath.resolve(Paths.get(jarFile).getParent)) }
+          Files.copy(extractionDir.resolve(Paths.get(jarFile)), targetPath.resolve(Paths.get(jarFile)))
+        } else {
+          println(extractionDir.resolve(jarFile))
+          val is = Files.newInputStream(extractionDir.resolve(jarFile), StandardOpenOption.READ)
+          val classReader: ClassReader = new ClassReader(is)
+          val cw: ClassWriter = Transformer.invokeVirtualToInvokeDynamic(classReader)
+          val bytes: Array[Byte] = cw.toByteArray
 
-        Files.createDirectories(targetPath.resolve(jarFile).getParent)
-        Files.write(targetPath.resolve(jarFile), bytes)
+          Files.createDirectories(targetPath.resolve(jarFile).getParent)
+          Files.write(targetPath.resolve(jarFile), bytes)
 
-        is.close
+          is.close
+        }
       }
+
+      def jarNameToPatchedName(jarName: String) = "%s-patched.jar".format(jarName.substring(0, jarName.size - 4))
+      JarUtil.createFromDirFiles(targetPath, Paths.get(jarNameToPatchedName(sourceFile.getName)))
+
+      FileUtils.deleteDirectory(extractionDir.toFile)
+    } catch {
+      case e: FileNotFoundException => println("The file \"%s\" was not found.".format(sourcePath.toString))
     }
-
-    def jarNameToPatchedName(jarName: String) = "%s-patched.jar".format(jarName.substring(0, jarName.size - 4))
-    JarUtil.createFromDirFiles(targetPath, Paths.get(jarNameToPatchedName(sourceFile.getName)))
-
-    FileUtils.deleteDirectory(extractionDir.toFile)
   }
 
 }
