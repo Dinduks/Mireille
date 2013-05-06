@@ -7,6 +7,7 @@ import org.objectweb.asm.{ClassReader, ClassWriter}
 import java.io.{File, FileNotFoundException}
 import org.apache.commons.io.filefilter._
 import main.scala.com.dindane.mireille.jar.JarUtil
+import org.apache.commons.io.FileUtils
 
 object Main {
 
@@ -104,6 +105,8 @@ object Main {
 
     def jarNameToPatchedName(jarName: String) = "%s-patched.jar".format(jarName.substring(0, jarName.size - 4))
     JarUtil.createFromDirFiles(targetPath, Paths.get(jarNameToPatchedName(sourceFile.getName)))
+
+    FileUtils.deleteDirectory(extractionDir.toFile)
   }
 
 }
