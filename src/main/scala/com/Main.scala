@@ -30,45 +30,11 @@ object Main {
         val sourceFile: File = new java.io.File(sourcePath.toString)
 
         if (FileFilterUtils.suffixFileFilter("class").accept(sourceFile)) {
-          val targetPath: Path = sourcePath.getParent.resolve("indy").resolve(sourcePath.getFileName)
-
-          try { Files.createDirectory(targetPath.getParent) } catch { case _: Throwable => () }
-
-          val is = Files.newInputStream(sourcePath, StandardOpenOption.READ)
-          val cw: ClassWriter = Transformer.invokeVirtualToInvokeDynamic(new ClassReader(is))
-          val bytes: Array[Byte] = cw.toByteArray
-
-          Files.write(targetPath, bytes)
-
-          is.close
+          indynamizeAClass(sourcePath)
         } else if (FileFilterUtils.suffixFileFilter("jar").accept(sourceFile)) {
-          val jarFiles: Seq[String] = JarUtil.getFiles(sourcePath.toString)
-          val extractionDir: Path = Paths.get(
-            "%s%smireille-test-%s".format(System.getProperty("java.io.tmpdir"), java.io.File.separator, scala.util.Random.nextInt))
-          val targetPath: Path = extractionDir.resolve("indy")
-
-          JarUtil.extract(sourcePath.toString, extractionDir.toString)
-
-          jarFiles map { jarFile =>
-            if (jarFile == "META-INF/MANIFEST.MF") {
-              try { Files.createDirectories(targetPath.resolve(Paths.get("META-INF"))) }
-              Files.copy(extractionDir.resolve(Paths.get(jarFile)), targetPath.resolve(Paths.get(jarFile)))
-            } else {
-              val is = Files.newInputStream(Paths.get(extractionDir + java.io.File.separator + jarFile), StandardOpenOption.READ)
-              val classReader: ClassReader = new ClassReader(is)
-              val cw: ClassWriter = Transformer.invokeVirtualToInvokeDynamic(classReader)
-              val bytes: Array[Byte] = cw.toByteArray
-
-              Files.write(targetPath, bytes)
-
-              is.close
-            }
-          }
-
-          def jarNameToPatchedName(jarName: String) = "%s-patched.jar".format(jarName.substring(0, jarName.size - 4))
-          JarUtil.createFromDirFiles(targetPath.toString, jarNameToPatchedName(sourceFile.getName))
+          indynamizeAJar(sourcePath, sourceFile)
         } else {
-          println("Please specify a JAR or class file")
+          println("The specified file is not a JAR or a class")
         }
       }
     } else {
@@ -96,6 +62,48 @@ object Main {
         println("Returns: %s".format(invokeVirtualCall.returnType))
       }
     }
+  }
+
+  def indynamizeAClass(sourcePath: Path) = {
+    val targetPath: Path = sourcePath.getParent.resolve("indy").resolve(sourcePath.getFileName)
+
+    try { Files.createDirectory(targetPath.getParent) } catch { case _: Throwable => () }
+
+    val is = Files.newInputStream(sourcePath, StandardOpenOption.READ)
+    val cw: ClassWriter = Transformer.invokeVirtualToInvokeDynamic(new ClassReader(is))
+    val bytes: Array[Byte] = cw.toByteArray
+
+    Files.write(targetPath, bytes)
+
+    is.close
+  }
+
+  def indynamizeAJar(sourcePath: Path, sourceFile: File) = {
+    val jarFiles: Seq[String] = JarUtil.getFiles(sourcePath.toString)
+    val extractionDir: Path = Paths.get(
+      "%s%smireille-test-%s".format(System.getProperty("java.io.tmpdir"), java.io.File.separator, scala.util.Random.nextInt))
+    val targetPath: Path = extractionDir.resolve("indy")
+
+    JarUtil.extract(sourcePath.toString, extractionDir.toString)
+
+    jarFiles map { jarFile =>
+      if (jarFile == "META-INF/MANIFEST.MF") {
+        try { Files.createDirectories(targetPath.resolve(Paths.get("META-INF"))) }
+        Files.copy(extractionDir.resolve(Paths.get(jarFile)), targetPath.resolve(Paths.get(jarFile)))
+      } else {
+        val is = Files.newInputStream(Paths.get(extractionDir + java.io.File.separator + jarFile), StandardOpenOption.READ)
+        val classReader: ClassReader = new ClassReader(is)
+        val cw: ClassWriter = Transformer.invokeVirtualToInvokeDynamic(classReader)
+        val bytes: Array[Byte] = cw.toByteArray
+
+        Files.write(targetPath, bytes)
+
+        is.close
+      }
+    }
+
+    def jarNameToPatchedName(jarName: String) = "%s-patched.jar".format(jarName.substring(0, jarName.size - 4))
+    JarUtil.createFromDirFiles(targetPath.toString, jarNameToPatchedName(sourceFile.getName))
   }
 
 }
