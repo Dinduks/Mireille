@@ -4,6 +4,12 @@ import collection._
 import org.objectweb.asm._
 import main.scala.com.dindane.mireille.models.InvokeDynamicCall
 
+/**
+ * A class visitor that visits a Java class and stores its Invoke Dynamic calls
+ * in the <code>invokeDynamicCalls</code> List
+ *
+ * @param className The class to be visited
+ */
 class InvokeDynamicVisitor(className: String) extends ClassVisitor(Opcodes.ASM4) {
 
   val invokeDynamicCalls: mutable.MutableList[InvokeDynamicCall] = mutable.MutableList.empty

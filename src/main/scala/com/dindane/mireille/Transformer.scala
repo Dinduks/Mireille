@@ -2,9 +2,12 @@ package main.scala.com.dindane.mireille
 
 import java.io.PrintWriter
 import org.objectweb.asm.{ClassWriter, ClassReader}
-import visitors.InvokeDynamicTransformerVisitor
 import org.objectweb.asm.util.CheckClassAdapter
+import visitors.InvokeDynamicTransformerVisitor
 
+/**
+ * An utility object used to transform classes
+ */
 object Transformer {
 
   def invokeVirtualToInvokeDynamic(classReader: ClassReader): ClassWriter = {

@@ -2,6 +2,9 @@ package main.scala.com.dindane.mireille
 
 import java.nio.file.{Paths, Path}
 
+/**
+ * An utility object used to do various repetitive tasks
+ */
 object Util {
 
   def getClassNameFromFQCN(fqcn: String): String = fqcn.split('/').last

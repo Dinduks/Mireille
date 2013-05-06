@@ -1,9 +1,15 @@
 package main.scala.com.dindane.mireille.visitors
 
 import collection._
-import org.objectweb.asm._
 import main.scala.com.dindane.mireille.models.InvokeVirtualCall
+import org.objectweb.asm._
 
+/**
+ * A class visitor that visits a Java class and stores its Invoke Virtuals calls
+ * in the <code>invokeVirtualCalls</code> List
+ *
+ * @param className The class to be visited
+ */
 class InvokeVirtualVisitor(className: String) extends ClassVisitor(Opcodes.ASM4) {
 
   val invokeVirtualCalls: mutable.MutableList[InvokeVirtualCall] = mutable.MutableList.empty

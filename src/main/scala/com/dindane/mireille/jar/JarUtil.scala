@@ -2,17 +2,32 @@ package main.scala.com.dindane.mireille.jar
 
 import collection.JavaConversions.collectionAsScalaIterable
 import collection.JavaConversions.enumerationAsScalaIterator
-import java.util.jar.JarFile
 import java.io._
-import org.apache.commons.io.FileUtils
+import java.util.jar.JarFile
 import java.util.zip.{ZipEntry, ZipOutputStream}
 import main.scala.com.dindane.mireille.Util
+import org.apache.commons.io.FileUtils
 
+/*
+ * This class' methods handle all things related to JARs manipulation
+ */
 object JarUtil {
 
+  /**
+   * Gets the files' names of a JAR
+   *
+   * @param jarPath The JAR whose files' names will be returned
+   * @return A list of the files in the specified JAR
+   */
   def getFiles(jarPath: String): Seq[String] = (new JarFile(jarPath)).entries.toSeq.map(file => file.getName)
 
-  def extract(jarPath: String, destinationDir: String) = {
+  /**
+   * Extract all the files of a JAR/ZIP in the specified directory
+   *
+   * @param jarPath The JAR which will be extracted
+   * @param destinationDir The direcory where the files will be extracted
+   */
+  def extract(jarPath: String, destinationDir: String) {
     val jar: JarFile = new JarFile(jarPath)
 
     jar.entries.toList.map { jarEntry =>
@@ -33,6 +48,12 @@ object JarUtil {
     }
   }
 
+  /**
+   * Creates a JAR containing all the files of a directory
+   *
+   * @param srcPath The directory that contains the files
+   * @param targetJarPath The resulting JAR file's path
+   */
   def createFromDirFiles(srcPath: String, targetJarPath: String) {
     val buf: Array[Byte] = new Array[Byte](1024 * 16)
     val files = FileUtils.listFiles(new File(srcPath), null, true)

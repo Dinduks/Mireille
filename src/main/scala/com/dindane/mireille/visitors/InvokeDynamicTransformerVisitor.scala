@@ -1,9 +1,8 @@
 package main.scala.com.dindane.mireille.visitors
 
-import org.objectweb.asm._
 import java.lang.invoke.{CallSite, MethodType}
 import java.lang.invoke.MethodHandles.Lookup
-import main.scala.com.dindane.mireille.Util
+import org.objectweb.asm._
 
 class InvokeDynamicTransformerVisitor(className: String, classVisitor: ClassVisitor)
   extends ClassVisitor(Opcodes.ASM4, classVisitor) {

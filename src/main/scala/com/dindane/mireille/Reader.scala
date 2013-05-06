@@ -2,10 +2,12 @@ package main.scala.com.dindane.mireille
 
 import models.{InvokeDynamicCall, InvokeVirtualCall}
 import java.io.InputStream
-import java.nio.file.{StandardOpenOption, Files, Path}
 import org.objectweb.asm.ClassReader
 import visitors.{InvokeDynamicVisitor, InvokeVirtualVisitor}
 
+/**
+ * An utility object used to read classes' information
+ */
 object Reader {
 
   def getInvokeVirtualCalls(is: InputStream): Seq[InvokeVirtualCall] = {
