@@ -94,8 +94,10 @@ object Main {
 
       jarFiles foreach { jarFile =>
         if ((".class$".r findFirstIn jarFile) == None) {
-          try { Files.createDirectories(targetPath.resolve(Paths.get(jarFile).getParent)) }
-          Files.copy(extractionDir.resolve(Paths.get(jarFile)), targetPath.resolve(Paths.get(jarFile)))
+          if (Paths.get(jarFile).getParent != null) {
+            try { Files.createDirectories(targetPath.resolve(Paths.get(jarFile).getParent)) }
+            Files.copy(extractionDir.resolve(Paths.get(jarFile)), targetPath.resolve(Paths.get(jarFile)))
+          }
         } else {
           val is = Files.newInputStream(extractionDir.resolve(jarFile), StandardOpenOption.READ)
           val classReader: ClassReader = new ClassReader(is)
