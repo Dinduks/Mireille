@@ -1,6 +1,7 @@
 package main.scala.com.dindane.mireille;
 
 import java.lang.invoke.*;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 
 public class RunTime {
@@ -93,10 +94,35 @@ class InliningCacheCallSite extends MutableCallSite {
             }
         } catch (Exception e) {}
 
-        MethodHandle method = lookUp.findVirtual(args[0].getClass(),
-                methodName,
-                methodType.dropParameterTypes(0, 1)).asType(methodType);
+        Method method = buildMethodObject(args[0].getClass(), methodName, methodType.dropParameterTypes(0, 1).parameterArray());
+        method.setAccessible(true);
+        MethodHandle methodHandle = MethodHandles.publicLookup().unreflect(method);
 
-        return method.invokeWithArguments(args);
+        return methodHandle.invokeWithArguments(args);
     }
+
+    /**
+     * Given a Class object, a method name, and the parameters' types of the latter,
+     * this method returns a well constructed Method object.
+     *
+     * The case where the specified method doesn't exist in the Class object,
+     * but in one of its parents, is supported.
+     *
+     * @param klass The class where to loop for the method
+     * @param methodName
+     * @param parameterTypes The types of the method's arguments
+     * @return A well constructed Method object
+     */
+    private Method buildMethodObject(Class klass, String methodName, Class[] parameterTypes) {
+        Method method;
+
+        try {
+            method = klass.getDeclaredMethod(methodName, parameterTypes);
+        } catch (NoSuchMethodException e) {
+            method = buildMethodObject(klass.getSuperclass(), methodName, parameterTypes);
+        }
+
+        return method;
+    }
+
 }
