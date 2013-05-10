@@ -80,6 +80,7 @@ object Main {
       is.close
     } catch {
       case e: NoSuchFileException => println("The file \"%s\" was not found.".format(sourcePath.toString))
+      case e: Throwable => e.printStackTrace
     }
   }
 
@@ -117,6 +118,7 @@ object Main {
       FileUtils.deleteDirectory(extractionDir.toFile)
     } catch {
       case e: FileNotFoundException => println("The file \"%s\" was not found.".format(sourcePath.toString))
+      case e: Throwable => e.printStackTrace
     }
   }
 
