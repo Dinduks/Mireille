@@ -7,6 +7,10 @@ import org.objectweb.asm._
 class InvokeDynamicTransformerVisitor(className: String, classVisitor: ClassVisitor)
   extends ClassVisitor(Opcodes.ASM4, classVisitor) {
 
+  override def visit(version: Int, access: Int, name: String, signature: String, superName: String, interfaces: Array[String]) {
+    super.visit(Opcodes.V1_7, access, name, signature, superName, interfaces)
+  }
+
   override def visitMethod(access: Int, name: String, desc: String, signature: String, exceptions: Array[String]) = {
     val methodVisitor = classVisitor.visitMethod(access, name, desc, signature, exceptions)
     new InvokeDynamicTransformerAdapter(methodVisitor)
