@@ -22,9 +22,16 @@ class TestOriginal {
         ArrayList<Integer> list = new ArrayList<>();
         list.isEmpty();
         list.contains("bla");
+        list.toString();
+        list.hashCode();
 
         System.out.println(greeter.inEnglish("Samy"));
         System.out.println(greeter.inFrenchPublic("Samy"));
+        greeter.toString();
+        greeter.hashCode();
+
+        Object obj = new Object();
+        obj.hashCode();
     }
 }
 

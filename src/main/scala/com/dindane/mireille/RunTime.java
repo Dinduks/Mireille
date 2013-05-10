@@ -2,12 +2,13 @@ package main.scala.com.dindane.mireille;
 
 import java.lang.invoke.*;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class RunTime {
     public MethodHandle FALLBACK;
-    public int callsCounter = 0;
-    public HashMap<String, Integer> methodCalls = new HashMap<>();
+    public HashMap<String, ArrayList<CallSiteInformation>> callsInfo = new HashMap<>();
 
     private static RunTime instance = new RunTime();
 
@@ -15,28 +16,43 @@ public class RunTime {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                System.out.println("\n\nExecution summary:");
-                System.out.println("==================");
+                String stringBuffer;
+                int nonOptimCounter = 0;
 
-                System.out.println("\nMethod invocations");
-                System.out.println(String.format("\nTotal: %d", callsCounter));
+                System.out.println("\n\nNon-optimized method calls:");
+                System.out.println("===========================");
+                for (Map.Entry<String, ArrayList<CallSiteInformation>> info : callsInfo.entrySet()) {
+                    if (info.getValue().size() > 2) {
+                        System.out.println();
+                        for (CallSiteInformation callInfo : info.getValue()) {
+                            stringBuffer = String.format("=> %s.%s() in %s:%d",
+                                    callInfo.obj.getName(),
+                                    callInfo.methodName,
+                                    callInfo.fileName,
+                                    callInfo.lineNumber);
+                            nonOptimCounter++;
+                            System.out.println(stringBuffer);
+                        }
+                    }
+                }
 
-//                for (Pair<String, Integer> methodCall : RunTime.methodCalls.values()) {
-//                    System.out.println(String.format("%s() \t\t called %d times", RunTime.methodCalls.get(i), RunTime.methodCalls.get(i)));
-//                }
+                System.out.println(String.format("\nNon-optimized method calls: %d", nonOptimCounter));
+                System.out.println(String.format("Total method calls:         %d", callsInfo.size()));
             }
         });
     }
 
-    public static CallSite bootstrap(MethodHandles.Lookup lookUp, String methodName, MethodType methodType) {
-        return instance.bsm(lookUp, methodName, methodType);
+    public static CallSite bootstrap(MethodHandles.Lookup lookUp, String methodName, MethodType methodType,
+                                     String fileName, Integer lineNumber) {
+        return instance.bsm(lookUp, methodName, methodType, fileName, lineNumber);
     }
 
     public static RunTime getInstance() {
         return instance;
     }
 
-    private CallSite bsm(MethodHandles.Lookup lookUp, String methodName, MethodType methodType) {
+    private CallSite bsm(MethodHandles.Lookup lookUp, String methodName, MethodType methodType,
+                         String fileName, Integer lineNumber) {
         try {
             FALLBACK = MethodHandles.lookup().findVirtual(InliningCacheCallSite.class,
                     "fallback",
@@ -47,8 +63,23 @@ public class RunTime {
             e.printStackTrace();
         }
 
+        CallSite callSite = new InliningCacheCallSite(lookUp, methodName, methodType, FALLBACK);
+        try {
+            callsInfo.get(methodName).add(new CallSiteInformation(callSite,
+                    callSite.type().parameterType(0),
+                    methodName,
+                    fileName,
+                    lineNumber));
+        } catch (NullPointerException e) {
+            callsInfo.put(methodName, new ArrayList<CallSiteInformation>());
+            callsInfo.get(methodName).add(new CallSiteInformation(callSite,
+                    callSite.type().parameterType(0),
+                    methodName,
+                    fileName,
+                    lineNumber));
+        }
 
-        return new InliningCacheCallSite(lookUp, methodName, methodType, FALLBACK);
+        return callSite;
     }
 }
 
@@ -73,17 +104,8 @@ class InliningCacheCallSite extends MutableCallSite {
     }
 
     public Object fallback(Object... args) throws Throwable {
-        RunTime runTimeInstance = RunTime.getInstance();
-
-        runTimeInstance.callsCounter += 1;
-
-        if (runTimeInstance.methodCalls.get(methodName) == null) {
-            runTimeInstance.methodCalls.put(methodName, 1);
-        } else {
-            runTimeInstance.methodCalls.put(methodName, runTimeInstance.methodCalls.get(methodName) + 1);
-        }
-
         try {
+            System.out.println("");
             System.out.print("Object: ");
             System.out.println(args[0]);
             System.out.print("Method name: ");
@@ -94,7 +116,10 @@ class InliningCacheCallSite extends MutableCallSite {
             }
         } catch (Exception e) {}
 
-        Method method = buildMethodObject(args[0].getClass(), methodName, methodType.dropParameterTypes(0, 1).parameterArray());
+        Class[] parameterTypes = methodType
+                .dropParameterTypes(0, 1)
+                .parameterArray();
+        Method method = buildMethodObject(args[0].getClass(), methodName, parameterTypes);
         method.setAccessible(true);
         MethodHandle methodHandle = MethodHandles.publicLookup().unreflect(method);
 
@@ -125,4 +150,33 @@ class InliningCacheCallSite extends MutableCallSite {
         return method;
     }
 
+}
+
+/**
+ * An object representing a CallSite and some information related to it, such as
+ * the method name, the file name and the line number of the original call
+ */
+class CallSiteInformation {
+    public CallSite callSite;
+    public Class obj;
+    public String methodName;
+    public String fileName;
+    public int lineNumber;
+
+    public CallSiteInformation(CallSite callSite, Class obj, String methodName, String fileName, int lineNumber) {
+        this.callSite = callSite;
+        this.obj = obj;
+        this.methodName = methodName;
+        this.fileName = fileName;
+        this.lineNumber = lineNumber;
+    }
+
+    public String toString() {
+        return new StringBuilder("CallSite:    ").append(callSite).append("\n")
+                .append("Object:      ").append(obj).append("\n")
+                .append("Method name: ").append(methodName).append("\n")
+                .append("File name:   ").append(fileName).append("\n")
+                .append("Line number: ").append(lineNumber).append("\n")
+                .toString();
+    }
 }
