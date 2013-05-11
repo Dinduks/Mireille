@@ -121,7 +121,7 @@ class InliningCacheCallSite extends MutableCallSite {
      * The case where the specified method doesn't exist in the Class object,
      * but in one of its parents, is supported.
      *
-     * @param klass The class where to loop for the method
+     * @param klass The class where to look for the method
      * @param methodName
      * @param parameterTypes The types of the method's arguments
      * @return A well constructed Method object
