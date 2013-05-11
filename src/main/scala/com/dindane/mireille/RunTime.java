@@ -104,18 +104,6 @@ class InliningCacheCallSite extends MutableCallSite {
     }
 
     public Object fallback(Object... args) throws Throwable {
-        try {
-            System.out.println("");
-            System.out.print("Object: ");
-            System.out.println(args[0]);
-            System.out.print("Method name: ");
-            System.out.println(methodName);
-            if (args[1] != null) {
-                System.out.print("Argument: ");
-                System.out.println(args[1]);
-            }
-        } catch (Exception e) {}
-
         Class[] parameterTypes = methodType
                 .dropParameterTypes(0, 1)
                 .parameterArray();
