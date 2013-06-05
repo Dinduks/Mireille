@@ -34,7 +34,7 @@ class InvokeDynamicTransformerAdapter(methodVisitor: MethodVisitor, fileName: Op
   override def visitMethodInsn(opcode: Int, owner: String, name: String, description: String) {
     if (opcode == Opcodes.INVOKEVIRTUAL || opcode == Opcodes.INVOKEINTERFACE) {
       val methodType: MethodType = MethodType.methodType(classOf[CallSite], classOf[Lookup], classOf[String],
-        classOf[MethodType], classOf[String], classOf[Integer])
+        classOf[MethodType], classOf[String], classOf[Integer], classOf[String])
 
       val bootstrapMethod = new Handle(Opcodes.H_INVOKESTATIC,
         "main/scala/com/dindane/mireille/RunTime",
@@ -48,7 +48,8 @@ class InvokeDynamicTransformerAdapter(methodVisitor: MethodVisitor, fileName: Op
         newDescription,
         bootstrapMethod,
         fileName.getOrElse("<unknown_file>"),
-        lineNumber.get: java.lang.Integer)
+        lineNumber.get: java.lang.Integer,
+        description)
     } else {
       super.visitMethodInsn(opcode, owner, name, description)
     }

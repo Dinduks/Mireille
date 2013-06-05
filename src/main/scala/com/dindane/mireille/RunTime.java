@@ -25,9 +25,10 @@ public class RunTime {
                     if (info.getValue().size() > 2) {
                         System.out.println();
                         for (CallSiteInformation callInfo : info.getValue()) {
-                            stringBuffer = String.format("=> %s.%s() in %s:%d",
+                            stringBuffer = String.format("=> %s.%s%s in %s:%d",
                                     callInfo.obj.getName(),
                                     callInfo.methodName,
+                                    callInfo.description,
                                     callInfo.fileName,
                                     callInfo.lineNumber);
                             nonOptimCounter++;
@@ -43,16 +44,12 @@ public class RunTime {
     }
 
     public static CallSite bootstrap(MethodHandles.Lookup lookUp, String methodName, MethodType methodType,
-                                     String fileName, Integer lineNumber) {
-        return instance.bsm(lookUp, methodName, methodType, fileName, lineNumber);
-    }
-
-    public static RunTime getInstance() {
-        return instance;
+                                     String fileName, Integer lineNumber, String desc) {
+        return instance.bsm(lookUp, methodName, methodType, fileName, lineNumber, desc);
     }
 
     private CallSite bsm(MethodHandles.Lookup lookUp, String methodName, MethodType methodType,
-                         String fileName, Integer lineNumber) {
+                         String fileName, Integer lineNumber, String description) {
         try {
             FALLBACK = MethodHandles.lookup().findVirtual(InliningCacheCallSite.class,
                     "fallback",
@@ -69,14 +66,16 @@ public class RunTime {
                     callSite.type().parameterType(0),
                     methodName,
                     fileName,
-                    lineNumber));
+                    lineNumber,
+                    description));
         } catch (NullPointerException e) {
             callsInfo.put(methodName, new ArrayList<CallSiteInformation>());
             callsInfo.get(methodName).add(new CallSiteInformation(callSite,
                     callSite.type().parameterType(0),
                     methodName,
                     fileName,
-                    lineNumber));
+                    lineNumber,
+                    description));
         }
 
         return callSite;
@@ -149,14 +148,17 @@ class CallSiteInformation {
     public Class obj;
     public String methodName;
     public String fileName;
+    public String description;
     public int lineNumber;
 
-    public CallSiteInformation(CallSite callSite, Class obj, String methodName, String fileName, int lineNumber) {
+    public CallSiteInformation(CallSite callSite, Class obj, String methodName,
+                               String fileName, int lineNumber, String description) {
         this.callSite = callSite;
         this.obj = obj;
         this.methodName = methodName;
         this.fileName = fileName;
         this.lineNumber = lineNumber;
+        this.description = description;
     }
 
     public String toString() {
@@ -165,6 +167,7 @@ class CallSiteInformation {
                 .append("Method name: ").append(methodName).append("\n")
                 .append("File name:   ").append(fileName).append("\n")
                 .append("Line number: ").append(lineNumber).append("\n")
+                .append("Arguments:   ").append(description).append("\n")
                 .toString();
     }
 }
