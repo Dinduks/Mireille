@@ -1,5 +1,6 @@
 package main.scala.com.dindane.mireille.runtime;
 
+import java.io.PrintStream;
 import java.lang.invoke.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,9 +10,12 @@ public class RT {
     public HashMap<String, ArrayList<CallSiteInformation>> callsInfo = new HashMap<>();
 
     private static RT instance = new RT();
+    private PrintStream originalOutput = System.out;
 
     private RT() {
-        Runtime.getRuntime().addShutdownHook(new ShutDownHook(callsInfo));
+        // Doesn't work if the target program's first line is a print
+        System.setOut(new PrintStream(new NullOutputStream()));
+        Runtime.getRuntime().addShutdownHook(new ShutDownHook(callsInfo, originalOutput));
     }
 
     public static CallSite bootstrap(MethodHandles.Lookup lookUp, String methodName, MethodType methodType,

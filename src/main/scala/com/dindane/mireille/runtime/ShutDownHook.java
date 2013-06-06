@@ -1,23 +1,28 @@
 package main.scala.com.dindane.mireille.runtime;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ShutDownHook extends Thread {
-    HashMap<String, ArrayList<CallSiteInformation>> callsInfo;
+    private HashMap<String, ArrayList<CallSiteInformation>> callsInfo;
+    private PrintStream originalOutput;
 
-    public ShutDownHook(HashMap<String, ArrayList<CallSiteInformation>> callsInfo) {
+    public ShutDownHook(HashMap<String, ArrayList<CallSiteInformation>> callsInfo, PrintStream originalOutput) {
         super();
         this.callsInfo = callsInfo;
+        this.originalOutput = originalOutput;
     }
 
     @Override
     public void run() {
+        System.setOut(originalOutput);
+
         String stringBuffer;
         int nonOptimCounter = 0;
 
-        System.out.println("\n\nNon-optimized method calls:");
+        System.out.println("Non-optimized method calls:");
         System.out.println("===========================");
         for (Map.Entry<String, ArrayList<CallSiteInformation>> info : callsInfo.entrySet()) {
             if (info.getValue().size() > 2) {
