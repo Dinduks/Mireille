@@ -12,7 +12,7 @@ class TestOriginal {
 //        Exception in thread "main" java.lang.ClassCastException: required class TestOriginal but encountered class [I
 //        at java.lang.invoke.MethodHandleNatives.raiseException(MethodHandleNatives.java:374)
 //        at java.lang.invoke.MethodHandle.invokeWithArguments(MethodHandle.java:566)
-//        at main.scala.com.dindane.mireille.InliningCacheCallSite.fallback(RunTime.java:102)
+//        at main.scala.com.dindane.mireille.InliningCacheCallSite.fallback(RT.java:102)
 //        at TestOriginal.main(GreeterandTest.java:10)
         // int[] foo = ints.clone();
 

@@ -26,16 +26,16 @@ object Main {
           }
           case e: Exception => println(e)
         }
-      } else if (args(0) == "indynamize") {
+      } else if (args(0) == "patch") {
         val sourcePath: Path = Paths.get(System.getProperty("user.dir")).resolve(args(1))
         val sourceFile: File = new java.io.File(sourcePath.toString)
 
         if (FileFilterUtils.suffixFileFilter("class").accept(sourceFile)) {
-          indynamizeAClass(sourcePath)
+          patchAClass(sourcePath)
         } else if (FileFilterUtils.suffixFileFilter("jar").accept(sourceFile)) {
-          indynamizeAJar(sourcePath, sourceFile)
+          patchAJar(sourcePath, sourceFile)
         } else {
-          println("The specified file is not a JAR or a class")
+          println("The specified file is neither a JAR nor a class")
         }
       }
     } else {
@@ -65,7 +65,7 @@ object Main {
     }
   }
 
-  def indynamizeAClass(sourcePath: Path) = {
+  def patchAClass(sourcePath: Path) = {
     val targetPath: Path = sourcePath.getParent.resolve("indy").resolve(sourcePath.getFileName)
 
     try { Files.createDirectory(targetPath.getParent) } catch { case _: Throwable => () }
@@ -84,7 +84,7 @@ object Main {
     }
   }
 
-  def indynamizeAJar(sourcePath: Path, sourceFile: File) = {
+  def patchAJar(sourcePath: Path, sourceFile: File) = {
     try {
       val jarFiles: Seq[String] = JarUtil.getFiles(sourcePath)
       val extractionDir: Path = Paths.get(
@@ -111,6 +111,8 @@ object Main {
           is.close
         }
       }
+
+      JarUtil.copyRunTimeClassToExtractDir(targetPath)
 
       def jarNameToPatchedName(jarName: String) = "%s-patched.jar".format(jarName.substring(0, jarName.size - 4))
       JarUtil.createFromDirFiles(targetPath, Paths.get(jarNameToPatchedName(sourceFile.getName)))

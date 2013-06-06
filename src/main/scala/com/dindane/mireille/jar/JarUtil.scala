@@ -3,11 +3,12 @@ package main.scala.com.dindane.mireille.jar
 import collection.JavaConversions.collectionAsScalaIterable
 import collection.JavaConversions.enumerationAsScalaIterator
 import java.io._
+import java.nio.file.{Files, StandardOpenOption, Path}
 import java.util.jar.JarFile
 import java.util.zip.{ZipEntry, ZipOutputStream}
+import main.scala.com.dindane.mireille.runtime
 import main.scala.com.dindane.mireille.Util
-import org.apache.commons.io.FileUtils
-import java.nio.file.Path
+import org.apache.commons.io.{IOUtils, FileUtils}
 
 /*
  * This class' methods handle all things related to JARs manipulation
@@ -80,6 +81,21 @@ object JarUtil {
     }
 
     out.close()
+  }
+
+  def copyRunTimeClassToExtractDir(extractionDir: Path) = {
+    val classLoader: ClassLoader = Thread.currentThread().getContextClassLoader
+    val runTimeClassPaths: Seq[String] = Seq(classOf[runtime.RT].getName.replace('.', '/') + ".class",
+      classOf[runtime.ShutDownHook].getName.replace('.', '/') + ".class",
+      classOf[runtime.InliningCacheCallSite].getName.replace('.', '/') + ".class",
+      classOf[runtime.CallSiteInformation].getName.replace('.', '/') + ".class")
+
+    val pathsAndStreams: Map[Path, InputStream] = runTimeClassPaths.map { rcp =>
+      (extractionDir.resolve(rcp), classLoader.getResource(rcp).openStream)
+    }.toMap
+
+    pathsAndStreams map { case (path, _) => Files.createDirectories(path.getParent) }
+    pathsAndStreams map { case (path, is) => Files.write(path, IOUtils.toByteArray(is), StandardOpenOption.CREATE) }
   }
 
 }
