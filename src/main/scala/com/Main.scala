@@ -1,13 +1,13 @@
 package main.scala
 
 import com.dindane.mireille.models.InvokeVirtualCall
-import main.scala.com.dindane.mireille.{Transformer, Reader}
-import java.nio.file._
-import org.objectweb.asm.{ClassReader, ClassWriter}
-import java.io.{File, FileNotFoundException}
-import org.apache.commons.io.filefilter._
 import main.scala.com.dindane.mireille.jar.JarUtil
+import main.scala.com.dindane.mireille.{Transformer, Reader}
+import java.io.{File, FileNotFoundException}
+import java.nio.file._
+import org.apache.commons.io.filefilter._
 import org.apache.commons.io.FileUtils
+import org.objectweb.asm.{ClassReader, ClassWriter}
 
 object Main {
 
@@ -33,7 +33,7 @@ object Main {
         if (FileFilterUtils.suffixFileFilter("class").accept(sourceFile)) {
           patchAClass(sourcePath)
         } else if (FileFilterUtils.suffixFileFilter("jar").accept(sourceFile)) {
-          patchAJar(sourcePath, sourceFile)
+          patchAJar(sourcePath)
         } else {
           println("The specified file is neither a JAR nor a class")
         }
@@ -84,12 +84,13 @@ object Main {
     }
   }
 
-  def patchAJar(sourcePath: Path, sourceFile: File) = {
+  def patchAJar(sourcePath: Path) = {
     try {
       val jarFiles: Seq[String] = JarUtil.getFiles(sourcePath)
-      val extractionDir: Path = Paths.get(
-        "%s%smireille-test-%s".format(System.getProperty("java.io.tmpdir"), java.io.File.separator, scala.util.Random.nextInt))
-      val targetPath: Path = extractionDir.resolve("indy")
+      val extractionDir: Path = Paths.get("%s%smireille-test-%s".format(System.getProperty("java.io.tmpdir"),
+        java.io.File.separator,
+        scala.util.Random.nextInt))
+      val targetPath: Path = extractionDir.resolve("patched")
 
       JarUtil.extract(sourcePath, extractionDir)
 
@@ -115,7 +116,7 @@ object Main {
       JarUtil.copyRunTimeClassToExtractDir(targetPath)
 
       def jarNameToPatchedName(jarName: String) = "%s-patched.jar".format(jarName.substring(0, jarName.size - 4))
-      JarUtil.createFromDirFiles(targetPath, Paths.get(jarNameToPatchedName(sourceFile.getName)))
+      JarUtil.createFromDirFiles(targetPath, sourcePath.getParent.resolve(jarNameToPatchedName(sourcePath.getFileName.toString)))
 
       FileUtils.deleteDirectory(extractionDir.toFile)
     } catch {
