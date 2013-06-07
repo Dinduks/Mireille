@@ -4,7 +4,6 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.invoke.MutableCallSite;
-import java.lang.reflect.Method;
 
 public class InliningCacheCallSite extends MutableCallSite {
     private MethodHandles.Lookup lookUp;
@@ -27,38 +26,10 @@ public class InliningCacheCallSite extends MutableCallSite {
     }
 
     public Object fallback(Object... args) throws Throwable {
-        Class[] parameterTypes = methodType
-                .dropParameterTypes(0, 1)
-                .parameterArray();
-        Method method = buildMethodObject(methodType.parameterType(0), methodName, parameterTypes);
-        method.setAccessible(true);
-        MethodHandle methodHandle = MethodHandles.publicLookup().unreflect(method);
+        MethodHandle methodHandle = lookUp.findVirtual(methodType.parameterType(0),
+                methodName,
+                methodType.dropParameterTypes(0, 1));
 
         return methodHandle.invokeWithArguments(args);
     }
-
-    /**
-     * Given a Class object, a method name, and the parameters' types of the latter,
-     * this method returns a well constructed Method object.
-     *
-     * The case where the specified method doesn't exist in the Class object,
-     * but in one of its parents, is supported.
-     *
-     * @param klass The class where to look for the method
-     * @param methodName
-     * @param parameterTypes The types of the method's arguments
-     * @return A well constructed Method object
-     */
-    private Method buildMethodObject(Class klass, String methodName, Class[] parameterTypes) {
-        Method method;
-
-        try {
-            method = klass.getDeclaredMethod(methodName, parameterTypes);
-        } catch (NoSuchMethodException e) {
-            method = buildMethodObject(klass.getSuperclass(), methodName, parameterTypes);
-        }
-
-        return method;
-    }
-
 }
