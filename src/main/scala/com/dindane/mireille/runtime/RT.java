@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 public class RT {
     public MethodHandle FALLBACK;
-    public HashMap<String, ArrayList<CallSiteInformation>> callsInfo = new HashMap<>();
+    private HashMap<String, ArrayList<CallSiteInformation>> callsInfo = new HashMap<>();
 
     private static RT instance;
     private PrintStream originalOutput = System.out;
