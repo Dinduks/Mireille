@@ -13,7 +13,13 @@ public class RT {
     private PrintStream originalOutput = System.out;
 
     public static void init() {
-        instance = new RT();
+        instance = getInstance();
+    }
+
+    public static RT getInstance() {
+        if (instance == null) instance = new RT();
+
+        return instance;
     }
 
     private RT() {
@@ -23,7 +29,7 @@ public class RT {
 
     public static CallSite bootstrap(MethodHandles.Lookup lookUp, String methodName, MethodType methodType,
                                      String fileName, Integer lineNumber, String desc) {
-        return instance.bsm(lookUp, methodName, methodType, fileName, lineNumber, desc);
+        return getInstance().bsm(lookUp, methodName, methodType, fileName, lineNumber, desc);
     }
 
     private CallSite bsm(MethodHandles.Lookup lookUp, String methodName, MethodType methodType,
