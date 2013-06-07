@@ -32,8 +32,8 @@ public class ShutDownHook extends Thread {
                             callInfo.obj.getName(),
                             callInfo.methodName,
                             callInfo.description,
-                            callInfo.fileName,
-                            callInfo.lineNumber);
+                            callInfo.fileName != null ? callInfo.fileName : "<unknown>",
+                            callInfo.lineNumber != null ? callInfo.lineNumber : "<unknown>");
                     nonOptimCounter++;
                     System.out.println(stringBuffer);
                 }

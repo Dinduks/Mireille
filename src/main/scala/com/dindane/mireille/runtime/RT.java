@@ -39,22 +39,16 @@ public class RT {
         }
 
         CallSite callSite = new InliningCacheCallSite(lookUp, methodName, methodType, FALLBACK);
-        try {
-            callsInfo.get(methodName).add(new CallSiteInformation(callSite,
-                    callSite.type().parameterType(0),
-                    methodName,
-                    fileName,
-                    lineNumber,
-                    description));
-        } catch (NullPointerException e) {
+        if (!callsInfo.containsKey(methodName)) {
             callsInfo.put(methodName, new ArrayList<CallSiteInformation>());
-            callsInfo.get(methodName).add(new CallSiteInformation(callSite,
-                    callSite.type().parameterType(0),
-                    methodName,
-                    fileName,
-                    lineNumber,
-                    description));
         }
+
+        callsInfo.get(methodName).add(new CallSiteInformation(callSite,
+                callSite.type().parameterType(0),
+                methodName,
+                fileName,
+                lineNumber,
+                description));
 
         return callSite;
     }

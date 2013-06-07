@@ -51,8 +51,8 @@ class InvokeDynamicTransformerAdapter(methodVisitor: MethodVisitor, fileName: Op
       super.visitInvokeDynamicInsn(name,
         newDescription,
         bootstrapMethod,
-        fileName.getOrElse("<unknown_file>"),
-        lineNumber.get: java.lang.Integer, // TODO: Remove the .get()
+        fileName.get, // Using get() to behave like the line below
+        lineNumber.get: java.lang.Integer, // lineNumber.getOrElse(x) is bugged (Scala bug); I don't wanna use weird hacks
         description)
     } else {
       super.visitMethodInsn(opcode, owner, name, description)

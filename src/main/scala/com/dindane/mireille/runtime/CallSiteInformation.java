@@ -12,7 +12,7 @@ public class CallSiteInformation {
     public String methodName;
     public String fileName;
     public String description;
-    public int lineNumber;
+    public Integer lineNumber;
 
     public CallSiteInformation(CallSite callSite, Class obj, String methodName,
                                String fileName, int lineNumber, String description) {
