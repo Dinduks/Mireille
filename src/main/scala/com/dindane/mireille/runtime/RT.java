@@ -9,11 +9,14 @@ public class RT {
     public MethodHandle FALLBACK;
     public HashMap<String, ArrayList<CallSiteInformation>> callsInfo = new HashMap<>();
 
-    private static RT instance = new RT();
+    private static RT instance;
     private PrintStream originalOutput = System.out;
 
+    public static void init() {
+        instance = new RT();
+    }
+
     private RT() {
-        // Doesn't work if the target program's first line is a print
         System.setOut(new PrintStream(new NullOutputStream()));
         Runtime.getRuntime().addShutdownHook(new ShutDownHook(callsInfo, originalOutput));
     }

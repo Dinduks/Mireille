@@ -27,6 +27,10 @@ class InvokeDynamicTransformerAdapter(methodVisitor: MethodVisitor, fileName: Op
   extends MethodVisitor(Opcodes.ASM4, methodVisitor) {
   private var lineNumber: Option[Int] = None
 
+  override def visitCode() {
+    super.visitMethodInsn(Opcodes.INVOKESTATIC, "main/scala/com/dindane/mireille/runtime/RT", "init", "()V")
+  }
+
   override def visitLineNumber(line: Int, startLabel: Label) {
     lineNumber = Some(line)
   }
@@ -48,7 +52,7 @@ class InvokeDynamicTransformerAdapter(methodVisitor: MethodVisitor, fileName: Op
         newDescription,
         bootstrapMethod,
         fileName.getOrElse("<unknown_file>"),
-        lineNumber.get: java.lang.Integer,
+        lineNumber.get: java.lang.Integer, // TODO: Remove the .get()
         description)
     } else {
       super.visitMethodInsn(opcode, owner, name, description)
