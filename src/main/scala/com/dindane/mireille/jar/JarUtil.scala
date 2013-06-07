@@ -89,6 +89,7 @@ object JarUtil {
   def copyRunTimeClassToExtractDir(extractionDir: Path) = {
     val classLoader: ClassLoader = Thread.currentThread().getContextClassLoader
     val runTimeClassPaths: Seq[String] = Seq(classOf[runtime.RT].getName,
+      classOf[runtime.CallSiteInformationMap].getName,
       classOf[runtime.NullOutputStream].getName,
       classOf[runtime.ShutDownHook].getName,
       classOf[runtime.InliningCacheCallSite].getName,
