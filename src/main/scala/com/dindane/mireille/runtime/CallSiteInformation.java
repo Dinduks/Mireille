@@ -38,11 +38,11 @@ public class CallSiteInformation {
         StringBuilder stringBuilder = new StringBuilder();
 
         stringBuilder.append("{");
-        stringBuilder.append(String.format("\"object\" :%s,", obj));
-        stringBuilder.append(String.format("\"methodName\" :%s,", methodName));
-        stringBuilder.append(String.format("\"fileName\" :%s,", fileName));
-        stringBuilder.append(String.format("\"lineNumber\" :%d,", lineNumber));
-        stringBuilder.append(String.format("\"description\" :%s", description));
+        stringBuilder.append(String.format("\"object\": \"%s\",", obj));
+        stringBuilder.append(String.format("\"methodName\": \"%s\",", methodName));
+        stringBuilder.append(String.format("\"fileName\": \"%s\",", fileName));
+        stringBuilder.append(String.format("\"lineNumber\": %d,", lineNumber));
+        stringBuilder.append(String.format("\"description\": \"%s\"", description));
         stringBuilder.append("}");
 
         return stringBuilder.toString();

@@ -12,7 +12,7 @@ import org.objectweb.asm.{ClassReader, ClassWriter}
 object Main {
 
   def main (args: Array[String]) {
-    if (2 == args.size) {
+    if (2 <= args.size) {
       if (args(0) == "printinvi") {
         try {
           val path = Paths.get(args(1))
@@ -29,11 +29,12 @@ object Main {
       } else if (args(0) == "patch") {
         val sourcePath: Path = Paths.get(System.getProperty("user.dir")).resolve(args(1))
         val sourceFile: File = new java.io.File(sourcePath.toString)
+        val jsonify = args.size == 3 && args(2) == "--json"
 
         if (FileFilterUtils.suffixFileFilter("class").accept(sourceFile)) {
-          patchAClass(sourcePath)
+          patchAClass(sourcePath, jsonify)
         } else if (FileFilterUtils.suffixFileFilter("jar").accept(sourceFile)) {
-          patchAJar(sourcePath)
+          patchAJar(sourcePath, jsonify)
         } else {
           println("The specified file is neither a JAR nor a class")
         }
@@ -65,14 +66,14 @@ object Main {
     }
   }
 
-  def patchAClass(sourcePath: Path) = {
+  def patchAClass(sourcePath: Path, jsonify: Boolean) = {
     val targetPath: Path = sourcePath.getParent.resolve("indy").resolve(sourcePath.getFileName)
 
     try { Files.createDirectory(targetPath.getParent) } catch { case _: Throwable => () }
 
     try {
       val is = Files.newInputStream(sourcePath, StandardOpenOption.READ)
-      val cw: ClassWriter = Transformer.invokeVirtualToInvokeDynamic(new ClassReader(is))
+      val cw: ClassWriter = Transformer.invokeVirtualToInvokeDynamic(new ClassReader(is), jsonify)
       val bytes: Array[Byte] = cw.toByteArray
 
       Files.write(targetPath, bytes)
@@ -84,7 +85,7 @@ object Main {
     }
   }
 
-  def patchAJar(sourcePath: Path) = {
+  def patchAJar(sourcePath: Path, jsonify: Boolean) = {
     try {
       val jarFiles: Seq[String] = JarUtil.getFiles(sourcePath)
       val extractionDir: Path = Paths.get("%s%smireille-test-%s".format(System.getProperty("java.io.tmpdir"),
@@ -103,7 +104,7 @@ object Main {
         } else {
           val is = Files.newInputStream(extractionDir.resolve(jarFile), StandardOpenOption.READ)
           val classReader: ClassReader = new ClassReader(is)
-          val cw: ClassWriter = Transformer.invokeVirtualToInvokeDynamic(classReader)
+          val cw: ClassWriter = Transformer.invokeVirtualToInvokeDynamic(classReader, jsonify)
           val bytes: Array[Byte] = cw.toByteArray
 
           Files.createDirectories(targetPath.resolve(jarFile).getParent)

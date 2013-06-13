@@ -11,9 +11,10 @@ public class CallSiteInformationMap extends HashMap<String, ArrayList<CallSiteIn
         for (String key : keySet()) {
             for (CallSiteInformation csi : get(key)) {
                 stringBuilder.append(csi.jsonify());
+                stringBuilder.append(", ");
             }
-            stringBuilder.append(", ");
         }
+        if (stringBuilder.length() > 1) stringBuilder.setLength(stringBuilder.length() - 2);
         stringBuilder.append("]");
 
         return stringBuilder.toString();

@@ -2,18 +2,19 @@ package main.scala.com.dindane.mireille.runtime;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 public class ShutDownHook extends Thread {
-    private HashMap<String, ArrayList<CallSiteInformation>> callsInfo;
-    private HashMap<String, ArrayList<CallSiteInformation>> nonOptimCallsInfo = new HashMap<>();
+    private Boolean jsonify;
+    private CallSiteInformationMap callsInfo;
+    private CallSiteInformationMap nonOptimCallsInfo = new CallSiteInformationMap();
     private PrintStream originalOutput;
 
-    public ShutDownHook(HashMap<String, ArrayList<CallSiteInformation>> callsInfo, PrintStream originalOutput) {
+    public ShutDownHook(CallSiteInformationMap callsInfo, PrintStream originalOutput, boolean jsonify) {
         super();
         this.callsInfo = callsInfo;
         this.originalOutput = originalOutput;
+        this.jsonify = jsonify;
     }
 
     @Override
@@ -22,20 +23,21 @@ public class ShutDownHook extends Thread {
 
         int totalMethodCalls = 0;
 
-        System.out.println("Non-optimized method calls:");
-        System.out.println("===========================");
         for (Map.Entry<String, ArrayList<CallSiteInformation>> info : callsInfo.entrySet()) {
             totalMethodCalls += info.getValue().size();
             if (info.getValue().size() > 2) nonOptimCallsInfo.put(info.getKey(), info.getValue());
         }
 
-        printRawSummary(totalMethodCalls);
+        if (jsonify) System.out.println(nonOptimCallsInfo.jsonify());
+        else printRawSummary(totalMethodCalls);
     }
 
     private void printRawSummary(int totalMethodCalls) {
         int nonOptimCounter = 0;
         String stringBuffer;
 
+        System.out.println("Summary");
+        System.out.println("=======");
         for (Map.Entry<String, ArrayList<CallSiteInformation>> info : nonOptimCallsInfo.entrySet()) {
             System.out.println();
             for (CallSiteInformation callInfo : info.getValue()) {

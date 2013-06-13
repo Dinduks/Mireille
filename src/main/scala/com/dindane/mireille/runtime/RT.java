@@ -7,12 +7,14 @@ import java.util.HashMap;
 
 public class RT {
     public MethodHandle FALLBACK;
-    private HashMap<String, ArrayList<CallSiteInformation>> callsInfo = new CallSiteInformationMap();
+    private CallSiteInformationMap callsInfo = new CallSiteInformationMap();
 
     private static RT instance;
+    private static boolean jsonify;
     private PrintStream originalOutput = System.out;
 
-    public static void init() {
+    public static void init(boolean jsonify_) {
+        jsonify = jsonify_;
         instance = getInstance();
     }
 
@@ -24,7 +26,7 @@ public class RT {
 
     private RT() {
         System.setOut(new PrintStream(new NullOutputStream()));
-        Runtime.getRuntime().addShutdownHook(new ShutDownHook(callsInfo, originalOutput));
+        Runtime.getRuntime().addShutdownHook(new ShutDownHook(callsInfo, originalOutput, jsonify));
     }
 
     public static CallSite bootstrap(MethodHandles.Lookup lookUp, String methodName, MethodType methodType,

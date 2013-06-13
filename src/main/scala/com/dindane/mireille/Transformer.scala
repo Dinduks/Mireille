@@ -10,9 +10,9 @@ import visitors.InvokeDynamicTransformerVisitor
  */
 object Transformer {
 
-  def invokeVirtualToInvokeDynamic(classReader: ClassReader): ClassWriter = {
+  def invokeVirtualToInvokeDynamic(classReader: ClassReader, jsonify: Boolean): ClassWriter = {
     val classWriter = new ClassWriter(0)
-    val classVisitor = new InvokeDynamicTransformerVisitor(classReader.getClassName, classWriter)
+    val classVisitor = new InvokeDynamicTransformerVisitor(classReader.getClassName, classWriter, jsonify)
     classReader.accept(classVisitor, 0)
 
     CheckClassAdapter.verify(new ClassReader(classWriter.toByteArray), false, new PrintWriter(System.err))

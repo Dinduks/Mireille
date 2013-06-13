@@ -4,7 +4,7 @@ import java.lang.invoke.{CallSite, MethodType}
 import java.lang.invoke.MethodHandles.Lookup
 import org.objectweb.asm._
 
-class InvokeDynamicTransformerVisitor(className: String, classVisitor: ClassVisitor)
+class InvokeDynamicTransformerVisitor(className: String, classVisitor: ClassVisitor, jsonify: Boolean)
   extends ClassVisitor(Opcodes.ASM4, classVisitor) {
   private var fileName: Option[String] = None
 
@@ -18,17 +18,23 @@ class InvokeDynamicTransformerVisitor(className: String, classVisitor: ClassVisi
 
   override def visitMethod(access: Int, name: String, desc: String, signature: String, exceptions: Array[String]) = {
     val methodVisitor = classVisitor.visitMethod(access, name, desc, signature, exceptions)
-    new InvokeDynamicTransformerAdapter(methodVisitor, fileName)
+    new InvokeDynamicTransformerAdapter(methodVisitor, fileName, jsonify, name)
   }
-
 }
 
-class InvokeDynamicTransformerAdapter(methodVisitor: MethodVisitor, fileName: Option[String])
+class InvokeDynamicTransformerAdapter(methodVisitor: MethodVisitor,
+  fileName: Option[String],
+  jsonify: Boolean,
+  methodName: String)
   extends MethodVisitor(Opcodes.ASM4, methodVisitor) {
   private var lineNumber: Option[Int] = None
 
   override def visitCode() {
-    super.visitMethodInsn(Opcodes.INVOKESTATIC, "main/scala/com/dindane/mireille/runtime/RT", "init", "()V")
+    // TODO: The INVOKESTATIC call isn't made if realized from inside the constructor
+    //if (methodName == "<init>") {
+      super.visitInsn(if (jsonify == true) Opcodes.ICONST_1 else Opcodes.ICONST_0);
+      super.visitMethodInsn(Opcodes.INVOKESTATIC, "main/scala/com/dindane/mireille/runtime/RT", "init", "(Z)V")
+    //}
   }
 
   override def visitLineNumber(line: Int, startLabel: Label) {
